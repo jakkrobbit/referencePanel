@@ -1,0 +1,109 @@
+body {
+    display: flex;
+    margin: 1em 0 0;
+    color: #c6c8c8;
+    height: 96vh;
+    flex-flow: column;
+    align-items: center;
+}
+
+
+#content {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    flex: 1;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+}
+
+#btn_test {
+    width: 100%;
+}
+
+.ref {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    padding: .5em;
+    white-space: normal;
+    line-height: inherit;
+}
+
+.ref p {
+    font-size: 2em;
+    text-align: center;
+}
+
+.startmssg {
+    text-align: center;
+}
+
+button {
+    font-size: 1em;
+    border: inherit;
+    color: inherit;
+}
+
+.ref {
+    width: 150px;
+    height: 150px;
+    border: 2px #c6c8c8 dashed;
+    border-radius: 7px;
+    transition: border 150ms linear, box-shadow 150ms linear;
+}
+
+.dropzone {
+    width: 150px;
+    height: 150px;
+    border: 2px #6fb5f1 dashed;
+    box-shadow: 0 0 10px 2px #6fb5f1;
+}
+
+
+/*
+Those classes will be edited at runtime with values specified
+by the settings of the CC application
+*/
+
+.hostFontColor {}
+
+.hostFontFamily {}
+
+.hostFontSize {}
+
+/*font family, color and size*/
+
+.hostFont {}
+
+/*background color*/
+
+.hostBgd {}
+
+/*lighter background color*/
+
+.hostBgdLight {}
+
+/*darker background color*/
+
+.hostBgdDark {}
+
+/*background color and font*/
+
+.hostElt {}
+
+
+.hostButton {
+    border: 1px solid;
+    border-radius: 2px;
+    height: 20px;
+    vertical-align: bottom;
+    font-family: inherit;
+    color: inherit;
+    font-size: inherit;
+}
