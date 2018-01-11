@@ -20,6 +20,10 @@
         <Extension Id="referenceWindow">
             <DispatchInfo>
                 <Resources>
+                    <CEFCommandLine>
+                        <Parameter>--enable-nodejs</Parameter>
+                        <Parameter>--mixed-context</Parameter>
+                    </CEFCommandLine>
                     <MainPath>./index.html</MainPath>
                     <ScriptPath>./jsx/hostscript.jsx</ScriptPath>
                 </Resources>

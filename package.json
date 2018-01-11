@@ -1,0 +1,24 @@
+{
+  "name": "referencewindow",
+  "version": "1.3.0",
+  "description": "A photoshop panel to hold reference images.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gesturepoke@bitbucket.org/gesturepoke/reference-panel.git"
+  },
+  "keywords": [
+    "references",
+    "cep",
+    "adobe"
+  ],
+  "author": "Nikki Berry",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/gesturepoke/reference-panel#readme",
+  "dependencies": {
+    "dragsterjs": "^1.6.2"
+  }
+}
