@@ -1,4 +1,3 @@
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50, unused: false */
 /*global alert*/
 
 'use strict';
@@ -14,6 +13,5 @@ function fyi() {
 }
 
 function deleteLayer() {
-    var layer = app.activeDocument.activeLayer();
-    layer.remove();
+    app.activeDocument.activeLayer.remove();
 }

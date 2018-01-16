@@ -1,13 +1,13 @@
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global $, CSInterface, themeManager, CSEvent, fabric*/
 /*eslint no-loop-func: 0*/
 
 (function () {
     'use strict';
     //TODO: Add save/open/delete board funcs
-
+    //TODO: Include layers w/ DnD functions
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
+        $container = $('#content'),
 
         //Canvas variables
         txtStyles = {
@@ -38,7 +38,6 @@
             transparentCorners: false,
             lockUniScaling: true
         },
-        $container = $('#content'),
         canvas = new fabric.Canvas('canvas', {
             width: 325,
             height: 540,
@@ -103,7 +102,6 @@
         //Pasting images
         pasteImage = function (e) {
             var items = e.originalEvent.clipboardData.items;
-            // 1885434740 = charIDToTypeID( "past" ) = paste  
 
             e.preventDefault();
             e.stopPropagation();
@@ -112,19 +110,19 @@
             //Loop through files
             for (var i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') == -1) {
-                    var file = items[i],
-                        //type = items[i].type,
-                        imageData = file.getAsFile(),
-                        URLobj = window.URL || window.webkitURL,
-                        img = new Image();
-                    img.src = URLobj.createObjectURL(imageData);
-                    fabric.Image.fromURL(img.src, function (imgInst) {
-                        imgInst.scaleToWidth(350);
-                        canvas.add(imgInst).centerObject(imgInst);
-                        imgInst.setCoords();
-                        canvas.renderAll();
-                    }, imgAttrs);
+                    continue;
                 }
+                var file = items[i],
+                    imageData = file.getAsFile(),
+                    URLobj = window.URL || window.webkitURL,
+                    img = new Image();
+                img.src = URLobj.createObjectURL(imageData);
+                fabric.Image.fromURL(img.src, function (imgInst) {
+                    imgInst.scaleToWidth(350);
+                    canvas.add(imgInst).centerObject(imgInst);
+                    imgInst.setCoords();
+                    canvas.renderAll();
+                }, imgAttrs);
             }
         },
 
@@ -133,7 +131,7 @@
             var files = e.originalEvent.dataTransfer.files || e.originalEvent.dataTransfer.items;
             e = e || window.event;
             e.preventDefault();
-            //            e.stopPropagation();
+            e.stopPropagation();
             $('.refs').removeClass('highlight');
             canvas.remove(introTxt);
 
@@ -148,9 +146,8 @@
                     imgInstance.setCoords();
                     canvas.renderAll();
                 };
-                csInterface.evalScript('deleteLayer()');
             }
-            
+
             // Layer Drop function
             function readLayer(event) {
                 var img = new Image(),
@@ -163,13 +160,14 @@
                     imgInstance.setCoords();
                     canvas.renderAll();
                 };
+                csInterface.evalScript('deleteLayer()');
             }
-            
+
             //Loop through files
             for (var i = 0; i < files.length; i++) {
                 var file = files[i],
                     reader = new FileReader();
-                
+
                 if (file.type.indexOf('image')) {
                     reader.onload = readLayer;
                 } else {
@@ -216,140 +214,142 @@
             return false;
         },
         //FIXME: flyout & context menus
-        setFlyoutMenu = function (e) {
-            var flyoutTxt = '<Menu><MenuItem Id="addRef" Label="Add Reference Image" Enabled="true"/><MenuItem Id="pasteRef" Label="Paste Reference Image" Enabled="true"/><MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/><MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/><MenuItem Label="---" /><MenuItem Id="saveBoard" Label="Save Board" Enabled="false"/><MenuItem Id="openBoard" Label="Open Board" Enabled="false"/><MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/><MenuItem Label="---" /><MenuItem Id="helpBox" Label="Help" Enabled="true"/></Menu>',
-                flyoutXML = $.parseXML(flyoutTxt);
-
-            function menuCallbacks() {
-                switch (e.data.menuId) {
-                    case "addRef":
-                        openImage();
-                        break;
-                    case "pasteRef":
-                        pasteImage();
-                        break;
-                    case "deleteRef":
-                        deleteImage();
-                        break;
-                    case "deleteAll":
-                        deleteAll();
-                        break;
-                        /*case "saveBoard":
+        flyoutXML = '<Menu>' +
+        '<MenuItem Id="addRef" Label="Add Image" Enabled="true"/>' +
+        '<MenuItem Id="pasteRef" Label="Paste Image" Enabled="true"/>' +
+        '<MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>' +
+        '<MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>' +
+        '<MenuItem Label="---" />' +
+        '<MenuItem Id="saveBoard" Label="Save Board" Enabled="false"/>' +
+        '<MenuItem Id="openBoard" Label="Open Board" Enabled="false"/>' +
+        '<MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/>' +
+        '<MenuItem Label="---" />' +
+        '<MenuItem Id="helpBox" Label="Help" Enabled="true"/>' +
+        '</Menu>',
+        contextMenu = {
+            "menu": [
+                {
+                    "id": "addRef",
+                    "label": "Add Image",
+                    "enabled": true,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "id": "pasteRef",
+                    "label": "Paste Image",
+                    "enabled": true,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "id": "deleteRef",
+                    "label": "Delete Selected",
+                    "enabled": true,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "id": "deleteAll",
+                    "label": "Clear Board",
+                    "enabled": true,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "label": "---"
+                    },
+                {
+                    "id": "saveBoard",
+                    "label": "Save Board",
+                    "enabled": false,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "id": "openBoard",
+                    "label": "Open Board",
+                    "enabled": false,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "id": "deleteBoard",
+                    "label": "Delete Board",
+                    "enabled": false,
+                    "checkable": false,
+                    "checked": false
+                    },
+                {
+                    "label": "---"
+                    },
+                {
+                    "id": "helpbox",
+                    "label": "Help",
+                    "enabled": true,
+                    "checkable": false,
+                    "checked": false
+                    }
+            ]
+        },
+        menuCallbacks = function (e) {
+            switch (e.data.menuId) {
+                case "addRef":
+                    openImage(e);
+                    break;
+                case "pasteRef":
+                    $(window).trigger('paste');
+                    break;
+                case "deleteRef":
+                    deleteImage();
+                    break;
+                case "deleteAll":
+                    deleteAll();
+                    break;
+                    /*case "saveBoard":
                         break;
                     case "openBoard":
                         break;
                     case "deleteBoard":
                         break;*/
-                    case "helpbox":
-                        csInterface.evalScript('fyi()');
-                        break;
-                }
-
+                case "helpbox":
+                    csInterface.evalScript('fyi()');
+                    break;
             }
-            csInterface.setPanelFlyoutMenu(flyoutXML);
-            csInterface.addEventListener("com.adobe.csxs.events.flyoutMenuClicked", menuCallbacks);
 
         },
-        setContextMenu = function (e) {
-            var contextMenu = {
-                "menu": [
-                    {
-                        "id": "addRef",
-                        "label": "Add Reference Image",
-                        "enabled": true,
-                        "checkable": false,
-                        "checked": false
-                              },
-                    {
-                        "id": "pasteRef",
-                        "label": "Paste Reference Image",
-                        "enabled": true,
-                        "checkable": false,
-                        "checked": false
-
-                              },
-                    {
-                        "id": "deleteRef",
-                        "label": "Delete Selected",
-                        "enabled": true,
-                        "checkable": false,
-                        "checked": false
-
-                              },
-                    {
-                        "id": "deleteAll",
-                        "label": "Delete All",
-                        "enabled": true,
-                        "checkable": false,
-                        "checked": false
-
-                              },
-                    {
-                        "label": "---"
-                              },
-                    {
-                        "id": "saveBoard",
-                        "label": "Save Board",
-                        "enabled": false,
-                        "checkable": false,
-                        "checked": false
-
-                              },
-                    {
-                        "id": "openBoard",
-                        "label": "Open Board",
-                        "enabled": false,
-                        "checkable": false,
-                        "checked": false
-
-                              },
-                    {
-                        "id": "deleteBoard",
-                        "label": "Delete Board",
-                        "enabled": false,
-                        "checkable": false,
-                        "checked": false
-
-                              }
-                          ]
-            };
-
-            function menuCallbacks() {
-                switch (e.data.menuId) {
-                    case "addRef":
-                        openImage();
-                        break;
-                    case "pasteRef":
-                        pasteImage();
-                        break;
-                    case "deleteRef":
-                        deleteImage();
-                        break;
-                    case "deleteAll":
-                        deleteAll();
-                        break;
-                        /*case "saveBoard":
+        jsonCallbacks = function (e) {
+            switch (e.id) {
+                case "addRef":
+                    openImage(e);
+                    break;
+                case "pasteRef":
+                    $(window).trigger('paste');
+                    break;
+                case "deleteRef":
+                    deleteImage();
+                    break;
+                case "deleteAll":
+                    deleteAll();
+                    break;
+                    /*case "saveBoard":
                         break;
                     case "openBoard":
                         break;
                     case "deleteBoard":
                         break;*/
-                    case "helpbox":
-                        csInterface.evalScript('fyi()');
-                        break;
-                }
-
+                case "helpbox":
+                    csInterface.evalScript('fyi()');
+                    break;
             }
 
-            csInterface.setContextMenuByJSON(contextMenu, menuCallbacks);
         },
         keyCodes = [
             {
                 "keyCode": 86,
                 "ctrlKey": true
-                }
-            ],
-
+            }
+        ],
         persist = function (inOn) {
             var event;
             if (inOn) {
@@ -359,7 +359,7 @@
             }
             event.extensionId = 'referenceWindow';
             csInterface.dispatchEvent(event);
-            /*Use persist(true); to turn on persistence*/
+            //        Use persist(true); to turn on persistence
         };
 
 
@@ -368,9 +368,18 @@
 
     function init() {
         themeManager.init();
-        introCanvas();
         //persist(true);
 
+        //Menus
+        csInterface.setPanelFlyoutMenu(flyoutXML);
+        csInterface.addEventListener("com.adobe.csxs.events.flyoutMenuClicked", menuCallbacks);
+        csInterface.setContextMenuByJSON(JSON.stringify(contextMenu), jsonCallbacks);
+
+        // Grab keyEvents
+        csInterface.registerKeyEventsInterest(JSON.stringify(keyCodes));
+        introCanvas();
+
+        // Button handling
         $('#refresh').click(function () {
             window.location.reload(true);
         });
@@ -381,20 +390,10 @@
         //Image handling
         $("#openref").click(openImage);
         $('#delref').click(deleteImage);
-
         $container.on('drop', dropImage);
         $container.on('dragover dragenter', dragOut);
         $('.refs').on('dragover dragenter', dragIn);
-        //        $(window).on('paste', pasteImage);
-        setFlyoutMenu();
-        setContextMenu();
-        //        csInterface.registerKeyEventsInterest(JSON.stringify(keyCodes));
-        $(window).keydown(function (e) {
-            console.log(e.keyCode);
-            if (e.keyCode == 86 && e.ctrlKey) {
-                pasteImage();
-            }
-        });
+        $(window).on('paste', pasteImage);
     }
 
     init();
