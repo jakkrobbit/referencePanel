@@ -6,7 +6,7 @@
     //TODO: Add save/open/delete board funcs
     //TODO: Include layers w/ DnD functions
     //TODO: Move all images to view button
-    //TODO: Reset rotation w/ doubleclick
+    //TODO:[x] Reset rotation w/ doubleclick
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
@@ -66,21 +66,87 @@
             hoverCursor: 'auto',
             selectable: false
         }),
+        canWidth = canvas.getWidth(),
 
         introCanvas = function () {
             canvas.add(introTxt).centerObject(introTxt);
             canvas.renderAll();
         },
+        /*findCanvasWidth = function () {
+            var currentWidth = $container.outerWidth();
+            var canW = 0;
+            var canH = 0;
+            if (canvas.canW > currentWidth) {
+                canW = currentWidth;
+                canH = (canW * canvas.canH) / canvas.canW;
+            } else {
+                canW = canvas.canW;
+                canH = canvas.canH;
+            }
+            return [canW, canH];
+        },
+*/
         resizeCanvas = function () {
             //Inital window size = 400x600 (WxH)
             //Initial canvas size 325x540
-            var winH = $(window).height(),
-                winW = $(window).width(),
-                canW = winW - 75,
-                canH = winH - 60;
+            /*var widthCalc = $container.width() / canvas.width,
+                heightCalc = ($container.height() / canvas.height) - 60,
+                objects = canvas.getObjects(),
+                $refs = $('.refs');
+            for (var i in objects) {
+                objects[i].scaleX = objects[i].scaleX * widthCalc;
+                objects[i].scaleY = objects[i].scaleY * heightCalc;
+                objects[i].left = objects[i].left * widthCalc;
+                objects[i].top = objects[i].top * heightCalc;
+                objects[i].setCoords();
+            }
 
-            canvas.setWidth(canW);
-            canvas.setHeight(canH);
+            $refs.css({
+                width: (canvas.getWidth() * widthCalc),
+                height: (canvas.getHeight() * heightCalc)
+            });
+            canvas.setWidth(canvas.getWidth() * widthCalc);
+            canvas.setHeight(canvas.getHeight() * heightCalc);
+            canvas.renderAll();
+            canvas.calcOffset();*/
+            var winW = $(window).width(),
+                winH = $(window).height(),
+                canW = winW - 75,
+                canH = winH - 75,
+                zoom;
+
+            switch (true) {
+                case winW < 400:
+                    zoom = canH / winH;
+                    break;
+                case winW > 400:
+                    zoom = winH / canH;
+                    break;
+                default:
+                    zoom = 1;
+            }
+
+            /*if (winW < 600) {
+                zoom = canH / winH;
+
+                if ((zoom * canW) > winW) {
+                    zoom = winW / canW;
+                }
+
+            } else {
+                zoom = winW / canW;
+
+                if ((zoom * canH) > winH) {
+                    zoom = winH / canH;
+                }
+            }*/
+            canvas.setWidth(canW).setHeight(canH).setZoom(zoom);
+        },
+
+
+        resetAngle = function() {
+            var obj = canvas.getActiveObject();
+            canvas.straightenObject(obj);
         },
 
         //Opening images
@@ -94,7 +160,7 @@
                 for (var i = 0; i < images.length; i++) {
                     var url = images[i];
                     fabric.Image.fromURL(url, function (img) {
-                        img.scaleToWidth(350);
+                        img.scaleToWidth(canWidth);
                         canvas.add(img).centerObject(img);
                         img.setCoords();
                         canvas.renderAll();
@@ -124,7 +190,7 @@
                     img = new Image();
                 img.src = URLobj.createObjectURL(imageData);
                 fabric.Image.fromURL(img.src, function (imgInst) {
-                    imgInst.scaleToWidth(350);
+                    imgInst.scaleToWidth(canWidth);
                     canvas.add(imgInst).centerObject(imgInst);
                     imgInst.setCoords();
                     canvas.renderAll();
@@ -170,7 +236,7 @@
                 img.src = event.target.result;
                 img.onload = function () {
                     var imgInstance = new fabric.Image(img, imgAttrs);
-                    imgInstance.scaleToWidth(350);
+                    imgInstance.scaleToWidth(canWidth);
                     canvas.add(imgInstance).centerObject(imgInstance);
                     imgInstance.setCoords();
                     canvas.renderAll();
@@ -314,6 +380,8 @@
         $container.on('dragover dragenter', dragOut);
         $('.refs').on('drop', dropImage);
         $(window).on('paste', pasteImage);
+        canvas.on('mouse:dblclick', resetAngle);
+        
     }
 
     init();
