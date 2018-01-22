@@ -7,11 +7,13 @@
     //TODO: Include layers w/ DnD functions
     //TODO: Move all images to view button
     //TODO:[x] Reset rotation w/ doubleclick
+    //TODO: Replace 'Paste' option with bring forward
+    //TODO: Add undo/redo options
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
 
-        //Canvas variables
+        ///////// CANVAS /////////
         txtStyles = {
             padding: 6,
             originX: 'center',
@@ -44,7 +46,8 @@
             width: 325,
             height: 540,
             backgroundColor: null,
-            rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair'
+            rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
+            selectionKey: 'ctrlKey'
         }),
         intro1 = new fabric.Text('How to add\nreference images:', txtStyles).set({
             top: 50,
@@ -66,7 +69,6 @@
             hoverCursor: 'auto',
             selectable: false
         }),
-        canWidth = canvas.getWidth(),
 
         introCanvas = function () {
             canvas.add(introTxt).centerObject(introTxt);
@@ -122,6 +124,12 @@
                 case winW > 400:
                     zoom = winH / canH;
                     break;
+                case winH < 600:
+                    zoom = canW / winW;
+                    break;
+                case winH > 600:
+                    zoom = winW / canW;
+                    break;
                 default:
                     zoom = 1;
             }
@@ -143,13 +151,13 @@
             canvas.setWidth(canW).setHeight(canH).setZoom(zoom);
         },
 
-
-        resetAngle = function() {
+        resetAngle = function () {
             var obj = canvas.getActiveObject();
             canvas.straightenObject(obj);
         },
 
-        //Opening images
+        ///////// IMAGES /////////
+        // Open from file
         openImage = function () {
             var fileTypes = ['gif', 'jpg', 'jpeg', 'png', 'bmp'],
                 refs = cepEngine.showOpenDialog(true, false, 'Open References', '', fileTypes),
@@ -160,7 +168,7 @@
                 for (var i = 0; i < images.length; i++) {
                     var url = images[i];
                     fabric.Image.fromURL(url, function (img) {
-                        img.scaleToWidth(canWidth);
+                        img.scaleToWidth(325);
                         canvas.add(img).centerObject(img);
                         img.setCoords();
                         canvas.renderAll();
@@ -171,7 +179,7 @@
             }
         },
 
-        //Pasting images
+        // Pasting
         pasteImage = function (e) {
             var items = e.originalEvent.clipboardData.items;
 
@@ -190,7 +198,7 @@
                     img = new Image();
                 img.src = URLobj.createObjectURL(imageData);
                 fabric.Image.fromURL(img.src, function (imgInst) {
-                    imgInst.scaleToWidth(canWidth);
+                    imgInst.scaleToWidth(325);
                     canvas.add(imgInst).centerObject(imgInst);
                     imgInst.setCoords();
                     canvas.renderAll();
@@ -198,21 +206,22 @@
             }
         },
 
-        //Deleting images
+        // Deleting
         deleteImage = function () {
-            var selected = canvas.getActiveObject(),
-                selectedGroup = canvas.getActiveObjects();
-            if (selected) {
-                if (confirm('Deleted selected image?')) {
-                    canvas.remove(selected);
-                }
-            } else if (selectedGroup) {
-                if (confirm('Deleted selected images?')) {
-                    canvas.remove(selectedGroup);
+            var selected = canvas.getActiveObjects(),
+                selGroup = new fabric.ActiveSelection(selected, {
+                    canvas: canvas
+                });
+            if (selGroup) {
+                if (confirm('Deleted selected image(s)?')) {
+                    selGroup.forEachObject(function (obj) {
+                        canvas.remove(obj);
+                    });
                 }
             } else {
                 return false;
             }
+            canvas.discardActiveObject().renderAll();
         },
         deleteAll = function () {
             if (confirm('Delete all images?')) {
@@ -220,7 +229,7 @@
             }
         },
 
-        //Drag-Drog images
+        // Drag-n-Drog
         dropImage = function (e) {
             var files = e.originalEvent.dataTransfer.files;
             e = e || window.event;
@@ -236,7 +245,7 @@
                 img.src = event.target.result;
                 img.onload = function () {
                     var imgInstance = new fabric.Image(img, imgAttrs);
-                    imgInstance.scaleToWidth(canWidth);
+                    imgInstance.scaleToWidth(325);
                     canvas.add(imgInstance).centerObject(imgInstance);
                     imgInstance.setCoords();
                     canvas.renderAll();
@@ -268,9 +277,17 @@
             return false;
         },
 
+        // Z-index Placement
+        bringFwd = function () {
+            var obj = canvas.getActiveObject();
+            canvas.bringForward(obj);
+        },
+
+        ///////// PS INTERACTION /////////
         menuXML = '<Menu>' +
         '<MenuItem Id="addRef" Label="Add Image" Enabled="true"/>' +
-        '<MenuItem Id="pasteRef" Label="Paste Image" Enabled="true"/>' +
+        '<MenuItem Id="fwd" Label="Bring Forward" Enabled="true"/>' +
+        '<MenuItem Id="backward" Label="Send Backward" Enabled="true"/>' +
         '<MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>' +
         '<MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>' +
         '<MenuItem Label="---" />' +
@@ -284,6 +301,9 @@
             switch (e.data.menuId) {
                 case "addRef":
                     openImage();
+                    break;
+                case "fwd":
+                    bringFwd();
                     break;
                 case "deleteRef":
                     deleteImage();
@@ -304,10 +324,12 @@
 
         },
         contextCallbacks = function (menuID) {
-            console.log('Menu ID: ' + menuID);
             switch (menuID) {
                 case "addRef":
                     openImage();
+                    break;
+                case "fwd":
+                    bringFwd();
                     break;
                 case "deleteRef":
                     deleteImage();
@@ -331,6 +353,9 @@
             {
                 "keyCode": 86,
                 "ctrlKey": true
+            },
+            {
+                "keyCode": 46
             }
         ],
         persist = function (inOn) {
@@ -353,7 +378,7 @@
         themeManager.init();
         //persist(true);
 
-        //Menus
+        ///////// MENUS /////////
         csInterface.setPanelFlyoutMenu(menuXML);
         csInterface.addEventListener("com.adobe.csxs.events.flyoutMenuClicked", flyoutCallbacks);
         csInterface.setContextMenu(menuXML, contextCallbacks);
@@ -361,27 +386,34 @@
         // Grab keyEvents
         csInterface.registerKeyEventsInterest(JSON.stringify(keyCodes));
 
-        // Cavnas functions
+        ///////// CANVAS /////////
         introCanvas();
         $(window).resize(resizeCanvas);
 
-        // Button handling
-        $('#refresh').click(function () {
-            window.location.reload(true);
-        });
+        ///////// BUTTONS /////////
+        $("#openref").click(openImage);
+        $('#delref').click(deleteImage);
         $("#infobttn").click(function () {
             csInterface.evalScript('fyi()');
         });
+        $('#refresh').click(function () {
+            window.location.reload(true);
+        });
 
-        //Image handling
-        $("#openref").click(openImage);
-        $('#delref').click(deleteImage);
+        ///////// IMAGES /////////
         $('.refs').on('dragover dragenter', dragIn);
         $container.on('dragover dragenter', dragOut);
         $('.refs').on('drop', dropImage);
         $(window).on('paste', pasteImage);
+        // Delete w/ delete button
+        $(window).keyup(function (e) {
+            e.preventDefault();
+            if (e.key == "Delete") {
+                deleteImage();
+            }
+        });
         canvas.on('mouse:dblclick', resetAngle);
-        
+
     }
 
     init();
