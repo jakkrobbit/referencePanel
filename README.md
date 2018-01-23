@@ -37,7 +37,7 @@ Compatible with Photoshop CC 2015 and newer.
 - [x] Reset rotation w/ doubleclick :small_orange_diamond:
 
 
-|<th colspan="2">Key</th>                      |
+|Key                   |                       |
 | --------------------:| :-------------------- |
 |:star2:               | In progress |
 |:small_orange_diamond:| Working, but needs kinks worked out|
