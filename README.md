@@ -33,12 +33,12 @@ Compatible with Photoshop CC 2015 and newer.
 - [ ] Save/Open/Delete image sets :question:
 - [ ] Export images :question:
 - [ ] Drag-and-drop PS layers :question:
-- [ ] Move all images into view star2:
+- [ ] Move all images into view :star2:
 - [x] Reset rotation w/ doubleclick :small_orange_diamond:
 
 
-|Key                   |                       |
+|                      |Key                    |
 | --------------------:| :-------------------- |
-|:star2:               | In progress |
+|:star2:               | In progress           |
 |:small_orange_diamond:| Working, but needs kinks worked out|
 |:question:            | May nix this idea if it ends up being a pain to add|
