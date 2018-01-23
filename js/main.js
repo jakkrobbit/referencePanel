@@ -8,7 +8,7 @@
     //TODO: Move all images to view button
     //TODO:[x] Reset rotation w/ doubleclick
     //TODO: Replace 'Paste' option with bring forward
-    //TODO: Add undo/redo options
+    //TODO: Add undo/redo options?
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
@@ -74,6 +74,31 @@
             canvas.add(introTxt).centerObject(introTxt);
             canvas.renderAll();
         },
+
+        // Undo/Redo vars
+        /*status, //current state
+        undos = [],
+        redos = [],
+        updateStatus = function () {
+            // Clear redo array & disable buttons
+            redos = [];
+            csInterface.updateContextMenuItem('redo', false, false);
+            csInterface.updatePanelMenuItem('Redo', false, false);
+            if (status) {
+                undos.push(status);
+                csInterface.updateContextMenuItem('undo', false, false);
+                csInterface.updatePanelMenuItem('Undo', false, false);
+            }
+            status = JSON.stringify(canvas);
+        },
+        history = function (onstack, offstack, onbttn, offbttn) {
+            offstack.push(status);
+            status = onstack.pop();
+            canvas.loadFromJSON(status, function () {
+                canvas.renderAll();
+
+            });
+        },*/
         /*findCanvasWidth = function () {
             var currentWidth = $container.outerWidth();
             var canW = 0;
@@ -277,17 +302,41 @@
             return false;
         },
 
+        // Place objects on screen
+        putOnScreen = function () {
+            canvas.forEachObject(function (obj) {
+                if (obj.isOnScreen()) {
+                    return;
+                } else {
+                    canvas.viewportCenterObject(obj).renderAll();
+                }
+            });
+        },
+
         // Z-index Placement
+        //FIXME: Fwd/Bkwd functions
         bringFwd = function () {
             var obj = canvas.getActiveObject();
             canvas.bringForward(obj);
+            obj.setCoords();
+            canvas.renderAll();
+        },
+        sendback = function () {
+            var obj = canvas.getActiveObject();
+            canvas.sendBackwards(obj);
+            obj.setCoords();
+            canvas.renderAll();
         },
 
         ///////// PS INTERACTION /////////
         menuXML = '<Menu>' +
+        //        '<MenuItem Id="undo" Label="Undo" Enabled="true"/>' +
+        //        '<MenuItem Id="redo" Label="Redo" Enabled="true"/>' +
+        //        '<MenuItem Label="---" />' +
         '<MenuItem Id="addRef" Label="Add Image" Enabled="true"/>' +
         '<MenuItem Id="fwd" Label="Bring Forward" Enabled="true"/>' +
-        '<MenuItem Id="backward" Label="Send Backward" Enabled="true"/>' +
+        '<MenuItem Id="back" Label="Send Backward" Enabled="true"/>' +
+        '<MenuItem Id="findimgs" Label="Find Off-Screen Images" Enabled="true"/>' +
         '<MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>' +
         '<MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>' +
         '<MenuItem Label="---" />' +
@@ -304,6 +353,12 @@
                     break;
                 case "fwd":
                     bringFwd();
+                    break;
+                case "back":
+                    sendback();
+                    break;
+                case "findimgs":
+                    putOnScreen();
                     break;
                 case "deleteRef":
                     deleteImage();
@@ -331,18 +386,24 @@
                 case "fwd":
                     bringFwd();
                     break;
+                case "back":
+                    sendback();
+                    break;
+                case "findimgs":
+                    putOnScreen();
+                    break;
                 case "deleteRef":
                     deleteImage();
                     break;
                 case "deleteAll":
                     deleteAll();
                     break;
-                case "saveBoard":
-                    break;
-                case "openBoard":
-                    break;
-                case "deleteBoard":
-                    break;
+                    /*case "saveBoard":
+                        break;
+                    case "openBoard":
+                        break;
+                    case "deleteBoard":
+                        break;*/
                 case "helpbox":
                     csInterface.evalScript('fyi()');
                     break;
