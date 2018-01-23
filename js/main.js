@@ -6,8 +6,7 @@
     //TODO: Add save/open/delete board funcs
     //TODO: Include layers w/ DnD functions
     //TODO: Move all images to view button
-    //TODO:[x] Reset rotation w/ doubleclick
-    //TODO: Replace 'Paste' option with bring forward
+    //TODO:[x] Replace 'Paste' option with bring forward
     //TODO: Add undo/redo options?
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
