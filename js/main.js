@@ -302,12 +302,13 @@
         },
 
         // Place objects on screen
-        putOnScreen = function () {
+        putinView = function () {
             canvas.forEachObject(function (obj) {
-                if (obj.isOnScreen()) {
-                    return;
-                } else {
+                var vptest = obj.isOnScreen();
+                if (vptest === false) {
                     canvas.viewportCenterObject(obj).renderAll();
+                } else {
+                    return;
                 }
             });
         },
@@ -357,7 +358,7 @@
                     sendback();
                     break;
                 case "findimgs":
-                    putOnScreen();
+                    putinView();
                     break;
                 case "deleteRef":
                     deleteImage();
@@ -389,7 +390,7 @@
                     sendback();
                     break;
                 case "findimgs":
-                    putOnScreen();
+                    putinView();
                     break;
                 case "deleteRef":
                     deleteImage();
