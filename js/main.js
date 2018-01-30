@@ -1,6 +1,9 @@
 /*global $, CSInterface, themeManager, CSEvent, fabric*/
 /*eslint no-loop-func: 0*/
 
+/*global $, CSInterface, themeManager, CSEvent, fabric*/
+/*eslint no-loop-func: 0*/
+
 (function () {
     'use strict';
     //TODO: Add save/open/delete board funcs
@@ -180,7 +183,20 @@
             canvas.straightenObject(obj);
         },
 
+
         ///////// IMAGES /////////
+        // Check for images & update menus
+        readRefs = function () {
+            var refs = canvas.getObjects();
+            if (refs) {
+                csInterface.updateContextMenuItem('saveBoard', true, false);
+                csInterface.updatePanelMenuItem('Save Board', true, false);
+            } else {
+                csInterface.updateContextMenuItem('saveBoard', false, false);
+                csInterface.updatePanelMenuItem('Save Board', false, false);
+            }
+        },
+
         // Open from file
         openImage = function () {
             var fileTypes = ['gif', 'jpg', 'jpeg', 'png', 'bmp'],
@@ -201,6 +217,7 @@
             } else {
                 return false;
             }
+            readRefs();
         },
 
         // Pasting
@@ -228,6 +245,7 @@
                     canvas.renderAll();
                 }, imgAttrs);
             }
+            readRefs();
         },
 
         // Deleting
@@ -246,11 +264,13 @@
                 return false;
             }
             canvas.discardActiveObject().renderAll();
+            readRefs();
         },
         deleteAll = function () {
             if (confirm('Delete all images?')) {
                 canvas.clear();
             }
+            readRefs();
         },
 
         // Drag-n-Drog
@@ -284,6 +304,7 @@
                 reader.onload = loadReader;
                 reader.readAsDataURL(file);
             }
+            readRefs();
 
         },
         dragIn = function (e) {
@@ -302,7 +323,7 @@
         },
 
         // Place objects on screen
-        putinView = function () {
+        bringtoView = function () {
             canvas.forEachObject(function (obj) {
                 var vptest = obj.isOnScreen();
                 if (vptest === false) {
@@ -327,6 +348,15 @@
             obj.setCoords();
             canvas.renderAll();
         },
+        // Save/Open/Delete Boards
+
+        saveRefs = function () {
+            var jsondata = canvas.toJSON();
+            cepEngine.showSaveDialogEx('Save Board', './boards', ['json'], 'reference-board', 'JSON File');
+            console.log(jsondata);
+        },
+
+
 
         ///////// PS INTERACTION /////////
         menuXML = '<Menu>' +
@@ -358,7 +388,7 @@
                     sendback();
                     break;
                 case "findimgs":
-                    putinView();
+                    bringtoView();
                     break;
                 case "deleteRef":
                     deleteImage();
@@ -366,9 +396,10 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                    /*case "saveBoard":
-                        break;
-                    case "openBoard":
+                case "saveBoard":
+                    saveRefs();
+                    break;
+                    /*case "openBoard":
                         break;
                     case "deleteBoard":
                         break;*/
@@ -390,7 +421,7 @@
                     sendback();
                     break;
                 case "findimgs":
-                    putinView();
+                    bringtoView();
                     break;
                 case "deleteRef":
                     deleteImage();
@@ -398,9 +429,10 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                    /*case "saveBoard":
-                        break;
-                    case "openBoard":
+                case "saveBoard":
+                    saveRefs();
+                    break;
+                    /*case "openBoard":
                         break;
                     case "deleteBoard":
                         break;*/
@@ -466,6 +498,7 @@
         $container.on('dragover dragenter', dragOut);
         $('.refs').on('drop', dropImage);
         $(window).on('paste', pasteImage);
+        
         // Delete w/ delete button
         $(window).keyup(function (e) {
             e.preventDefault();
