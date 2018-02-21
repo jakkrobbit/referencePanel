@@ -45,8 +45,8 @@
             lockUniScaling: true
         },
         canvas = new fabric.Canvas('canvas', {
-            width: 325,
-            height: 540,
+            width: 525,
+            height: 740,
             backgroundColor: null,
             rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
             selectionKey: 'ctrlKey'
@@ -116,45 +116,23 @@
         },
 */
         resizeCanvas = function () {
-            //Inital window size = 400x600 (WxH)
-            //Initial canvas size 325x540
-            /*var widthCalc = $container.width() / canvas.width,
-                heightCalc = ($container.height() / canvas.height) - 60,
-                objects = canvas.getObjects(),
-                $refs = $('.refs');
-            for (var i in objects) {
-                objects[i].scaleX = objects[i].scaleX * widthCalc;
-                objects[i].scaleY = objects[i].scaleY * heightCalc;
-                objects[i].left = objects[i].left * widthCalc;
-                objects[i].top = objects[i].top * heightCalc;
-                objects[i].setCoords();
-            }
-
-            $refs.css({
-                width: (canvas.getWidth() * widthCalc),
-                height: (canvas.getHeight() * heightCalc)
-            });
-            canvas.setWidth(canvas.getWidth() * widthCalc);
-            canvas.setHeight(canvas.getHeight() * heightCalc);
-            canvas.renderAll();
-            canvas.calcOffset();*/
             var winW = $(window).width(),
                 winH = $(window).height(),
                 canW = winW - 75,
-                canH = winH - 75,
+                canH = winH - 60,
                 zoom;
 
             switch (true) {
-                case winW < 400:
+                case winW < 600:
                     zoom = canH / winH;
                     break;
-                case winW > 400:
+                case winW > 600:
                     zoom = winH / canH;
                     break;
-                case winH < 600:
+                case winH < 800:
                     zoom = canW / winW;
                     break;
-                case winH > 600:
+                case winH > 800:
                     zoom = winW / canW;
                     break;
                 default:
@@ -208,7 +186,7 @@
                 for (var i = 0; i < images.length; i++) {
                     var url = images[i];
                     fabric.Image.fromURL(url, function (img) {
-                        img.scaleToWidth(325);
+                        img.scaleToWidth(400);
                         canvas.add(img).centerObject(img);
                         img.setCoords();
                         canvas.renderAll();
@@ -350,12 +328,23 @@
         },
         // Save/Open/Delete Boards
 
-        saveRefs = function () {
-            var jsondata = canvas.toJSON();
-            cepEngine.showSaveDialogEx('Save Board', './boards', ['json'], 'reference-board', 'JSON File');
-            console.log(jsondata);
+        newboard = function () {
+            var jsondata = JSON.stringify(canvas),
+                savebox = cepEngine.showSaveDialogEx('Save Board', '/boards', ["json"], 'reference-board', 'JSON File (*.json)'),
+                path = savebox.data,
+                boardData = cepEngine.writeFile(path + '.json', jsondata);
+            if (boardData.err != 0) {
+                alert('Error saving file!');
+            }
         },
-
+        openboard = function () {
+            var opendlg = cepEngine.showOpenDialog(false, false, 'Open Board', '', ['json']),
+                result = JSON.stringify(opendlg.data);
+                canvas.loadFromJSON(result, function () {
+                    canvas.renderAll();
+                });
+                console.log('File data: ' + result);
+        },
 
 
         ///////// PS INTERACTION /////////
@@ -397,7 +386,7 @@
                     deleteAll();
                     break;
                 case "saveBoard":
-                    saveRefs();
+                    newboard();
                     break;
                     /*case "openBoard":
                         break;
@@ -430,7 +419,7 @@
                     deleteAll();
                     break;
                 case "saveBoard":
-                    saveRefs();
+                    newboard();
                     break;
                     /*case "openBoard":
                         break;
@@ -469,7 +458,7 @@
 
     function init() {
         themeManager.init();
-        //persist(true);
+        //        persist(true);
 
         ///////// MENUS /////////
         csInterface.setPanelFlyoutMenu(menuXML);
@@ -486,9 +475,8 @@
         ///////// BUTTONS /////////
         $("#openref").click(openImage);
         $('#delref').click(deleteImage);
-        $("#infobttn").click(function () {
-            csInterface.evalScript('fyi()');
-        });
+        $("#savebrd").click(newboard);
+        $("#openbrd").click(openboard);
         $('#refresh').click(function () {
             window.location.reload(true);
         });
@@ -498,7 +486,7 @@
         $container.on('dragover dragenter', dragOut);
         $('.refs').on('drop', dropImage);
         $(window).on('paste', pasteImage);
-        
+
         // Delete w/ delete button
         $(window).keyup(function (e) {
             e.preventDefault();
