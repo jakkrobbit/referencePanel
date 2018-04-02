@@ -1,9 +1,6 @@
 /*global $, CSInterface, themeManager, CSEvent, fabric*/
 /*eslint no-loop-func: 0*/
 
-/*global $, CSInterface, themeManager, CSEvent, fabric*/
-/*eslint no-loop-func: 0*/
-
 (function () {
     'use strict';
     //TODO: Add save/open/delete board funcs
@@ -45,8 +42,8 @@
             lockUniScaling: true
         },
         canvas = new fabric.Canvas('canvas', {
-            width: 525,
-            height: 740,
+            width: 425,
+            height: 640,
             backgroundColor: null,
             rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
             selectionKey: 'ctrlKey'
@@ -123,16 +120,16 @@
                 zoom;
 
             switch (true) {
-                case winW < 600:
+                case winW < 500:
                     zoom = canH / winH;
                     break;
-                case winW > 600:
+                case winW > 500:
                     zoom = winH / canH;
                     break;
-                case winH < 800:
+                case winH < 700:
                     zoom = canW / winW;
                     break;
-                case winH > 800:
+                case winH > 700:
                     zoom = winW / canW;
                     break;
                 default:
@@ -176,7 +173,7 @@
         },
 
         // Open from file
-        openImage = function () {
+        addRef = function () {
             var fileTypes = ['gif', 'jpg', 'jpeg', 'png', 'bmp'],
                 refs = cepEngine.showOpenDialog(true, false, 'Open References', '', fileTypes),
                 images = refs.data;
@@ -214,7 +211,8 @@
                 var file = items[i],
                     imageData = file.getAsFile(),
                     URLobj = window.URL || window.webkitURL,
-                    img = new Image();
+                    img = new Image(),
+                    imgfile = canvas.toDataURL();
                 img.src = URLobj.createObjectURL(imageData);
                 fabric.Image.fromURL(img.src, function (imgInst) {
                     imgInst.scaleToWidth(325);
@@ -222,6 +220,7 @@
                     imgInst.setCoords();
                     canvas.renderAll();
                 }, imgAttrs);
+                cepEngine.writeFile(imgfile, '../refs', 'Base64');
             }
             readRefs();
         },
@@ -336,14 +335,44 @@
             if (boardData.err != 0) {
                 alert('Error saving file!');
             }
+            /*var jsondata = JSON.stringify(canvas),
+                userinput = $('#boardname').val();
+
+            $.fancyprompt({
+                title: 'Save New Reference Board',
+                message: '<label>Board Name: <input type="text" id="boardname" class="topcoat-text-input--large" placeholder="Reference Board" required/></label>',
+                okbutton: 'Save',
+                nobutton: 'Cancel',
+                callback: function () {
+                    localStorage.setItem("'" + userinput + "'", "'" + jsondata + "'");
+                    console.log('Input value:' + userinput + '\n Canvas Data:' + jsondata);
+                }
+            });*/
+
         },
         openboard = function () {
-            var opendlg = cepEngine.showOpenDialog(false, false, 'Open Board', '', ['json']),
-                result = JSON.stringify(opendlg.data);
-                canvas.loadFromJSON(result, function () {
+            var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File');
+
+            $.getJSON(opendlg.data, function (data) {
+                canvas.loadFromJSON(JSON.stringify(data), function () {
                     canvas.renderAll();
                 });
-                console.log('File data: ' + result);
+            });
+            /*var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
+                 files = new Blob(opendlg.data, {
+                     type: 'application/json'
+                 }),
+//                files = e.target.files[0],
+                reader = new FileReader();
+            reader.onload = function () {
+                var contents = reader.result;
+                canvas.loadFromJSON(JSON.stringify(contents), function () {
+                    canvas.renderAll();
+                });
+                console.log('File data: ' + JSON.stringify(contents));
+            };
+
+            reader.readAsText(files);*/
         },
 
 
@@ -368,7 +397,7 @@
         flyoutCallbacks = function (e) {
             switch (e.data.menuId) {
                 case "addRef":
-                    openImage();
+                    addRef();
                     break;
                 case "fwd":
                     bringFwd();
@@ -401,7 +430,7 @@
         contextCallbacks = function (menuID) {
             switch (menuID) {
                 case "addRef":
-                    openImage();
+                    addRef();
                     break;
                 case "fwd":
                     bringFwd();
@@ -473,9 +502,9 @@
         $(window).resize(resizeCanvas);
 
         ///////// BUTTONS /////////
-        $("#openref").click(openImage);
+        $("#openref").click(addRef);
         $('#delref').click(deleteImage);
-        $("#savebrd").click(newboard);
+        $("#newbrd").click(newboard);
         $("#openbrd").click(openboard);
         $('#refresh').click(function () {
             window.location.reload(true);

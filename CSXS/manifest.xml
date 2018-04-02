@@ -31,8 +31,8 @@
                     <Menu>References</Menu>
                     <Geometry>
                         <Size>
-                            <Height>800</Height>
-                            <Width>600</Width>
+                            <Height>700</Height>
+                            <Width>500</Width>
                         </Size>
                         <MinSize>
                             <Height>100</Height>
