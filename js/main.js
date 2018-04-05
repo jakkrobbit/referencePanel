@@ -6,7 +6,6 @@
     //TODO: Add save/open/delete board funcs
     //TODO: Include layers w/ DnD functions
     //TODO: Move all images to view button
-    //TODO:[x] Replace 'Paste' option with bring forward
     //TODO: Add undo/redo options?
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
@@ -42,8 +41,8 @@
             lockUniScaling: true
         },
         canvas = new fabric.Canvas('canvas', {
-            width: 425,
-            height: 640,
+            width: 325,
+            height: 540,
             backgroundColor: null,
             rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
             selectionKey: 'ctrlKey'
@@ -120,18 +119,18 @@
                 zoom;
 
             switch (true) {
-                case winW < 500:
+                case winW < 400:
                     zoom = canH / winH;
                     break;
-                case winW > 500:
+                case winW > 400:
                     zoom = winH / canH;
                     break;
-                case winH < 700:
-                    zoom = canW / winW;
-                    break;
-                case winH > 700:
-                    zoom = winW / canW;
-                    break;
+                    /*case winH < 600:
+                        zoom = canW / winW;
+                        break;
+                    case winH > 600:
+                        zoom = winW / canW;
+                        break;*/
                 default:
                     zoom = 1;
             }
@@ -220,7 +219,7 @@
                     imgInst.setCoords();
                     canvas.renderAll();
                 }, imgAttrs);
-                cepEngine.writeFile(imgfile, '../refs', 'Base64');
+                localStorage.setItem('pasted-ref', imgfile);
             }
             readRefs();
         },
@@ -351,13 +350,15 @@
 
         },
         openboard = function () {
-            var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File');
-
+            var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
+                pastedimg = localStorage.getItem('pasted-ref');
+            
             $.getJSON(opendlg.data, function (data) {
                 canvas.loadFromJSON(JSON.stringify(data), function () {
                     canvas.renderAll();
                 });
             });
+            
             /*var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
                  files = new Blob(opendlg.data, {
                      type: 'application/json'
@@ -417,9 +418,10 @@
                 case "saveBoard":
                     newboard();
                     break;
-                    /*case "openBoard":
-                        break;
-                    case "deleteBoard":
+                case "openBoard":
+                    openboard();
+                    break;
+                    /*case "deleteBoard":
                         break;*/
                 case "helpbox":
                     csInterface.evalScript('fyi()');
@@ -450,10 +452,11 @@
                 case "saveBoard":
                     newboard();
                     break;
-                    /*case "openBoard":
-                        break;
-                    case "deleteBoard":
-                        break;*/
+                case "openBoard":
+                    openboard();
+                    break;
+                /*case "deleteBoard":
+                    break;*/
                 case "helpbox":
                     csInterface.evalScript('fyi()');
                     break;
