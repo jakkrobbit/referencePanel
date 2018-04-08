@@ -6,7 +6,6 @@
     //TODO: Add save/open/delete board funcs
     //TODO: Include layers w/ DnD functions
     //TODO: Move all images to view button
-    //TODO: Add undo/redo options?
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
@@ -41,8 +40,8 @@
             lockUniScaling: true
         },
         canvas = new fabric.Canvas('canvas', {
-            width: 325,
-            height: 540,
+            width: 300,
+            height: 450,
             backgroundColor: null,
             rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
             selectionKey: 'ctrlKey'
@@ -73,6 +72,7 @@
             canvas.renderAll();
         },
 
+        //TODO: Add undo/redo options?
         // Undo/Redo vars
         /*status, //current state
         undos = [],
@@ -111,29 +111,63 @@
             return [canW, canH];
         },
 */
-        resizeCanvas = function () {
+
+        ////// Responsive Canvas //////
+        getDimensions = function () {
             var winW = $(window).width(),
                 winH = $(window).height(),
-                canW = winW - 75,
-                canH = winH - 60,
-                zoom;
+                scale = 1.5,
+                scaleW = winW - 150,
+                scaleH = winH - 100,
+                canW,
+                canH;
+            if (winW != 450) {
+                canW = scaleW;
+                canH = canW * scale;
+            } else {
+                canW = scaleW;
+                canH = scaleH;
+            }
+            return [canW, canH];
+        },
+        resizeCanvas = function () {
+            var dimensions = getDimensions(),
+                /*winW = $(window).width(),
+                winH = $(window).height(),
+                canW = winW - 100,
+                canH = winH - 150,
+                zoomIn = winW / canW,
+                zoomOut = canW / winW,*/
+                width = dimensions[0],
+                height = dimensions[1],
+                zoom = 1;
 
-            switch (true) {
-                case winW < 400:
-                    zoom = canH / winH;
+            if (width < 200) {
+                zoom -= 0.4;
+            } else if (width < 300) {
+                zoom -= 0.1;
+            } else if (width > 300) {
+                zoom += 0.1;
+            }
+
+            /*switch (true) {
+                case ((winW < 401) && (winH < 602)):
+                case ((winW < 401) && (winH > 602)):
+                    zoom = zoomOut;
                     break;
-                case winW > 400:
-                    zoom = winH / canH;
+                case ((winW > 401) && (winH > 602)):
+                case ((winW > 401) && (winH < 602)):
+                    zoom = zoomIn;
                     break;
-                    /*case winH < 600:
+                    case winH < 600:
                         zoom = canW / winW;
                         break;
                     case winH > 600:
                         zoom = winW / canW;
-                        break;*/
+                        break;
                 default:
                     zoom = 1;
-            }
+            }*/
 
             /*if (winW < 600) {
                 zoom = canH / winH;
@@ -149,7 +183,10 @@
                     zoom = winH / canH;
                 }
             }*/
-            canvas.setWidth(canW).setHeight(canH).setZoom(zoom);
+            if (zoom != 1) {
+                canvas.setWidth(width).setHeight(height)
+                    .setZoom(zoom).calcOffset().renderAll();
+            }
         },
 
         resetAngle = function () {
@@ -327,7 +364,7 @@
         // Save/Open/Delete Boards
 
         newboard = function () {
-            var jsondata = JSON.stringify(canvas),
+            var jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
                 savebox = cepEngine.showSaveDialogEx('Save Board', '/boards', ["json"], 'reference-board', 'JSON File (*.json)'),
                 path = savebox.data,
                 boardData = cepEngine.writeFile(path + '.json', jsondata);
@@ -352,13 +389,17 @@
         openboard = function () {
             var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
                 pastedimg = localStorage.getItem('pasted-ref');
-            
+
+            if (opendlg.data) {
+                canvas.clear();
+            }
+
             $.getJSON(opendlg.data, function (data) {
                 canvas.loadFromJSON(JSON.stringify(data), function () {
                     canvas.renderAll();
                 });
             });
-            
+
             /*var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
                  files = new Blob(opendlg.data, {
                      type: 'application/json'
@@ -455,8 +496,8 @@
                 case "openBoard":
                     openboard();
                     break;
-                /*case "deleteBoard":
-                    break;*/
+                    /*case "deleteBoard":
+                        break;*/
                 case "helpbox":
                     csInterface.evalScript('fyi()');
                     break;
