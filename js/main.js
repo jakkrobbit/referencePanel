@@ -116,28 +116,30 @@
         getDimensions = function () {
             var winW = $(window).width(),
                 winH = $(window).height(),
-                scale = 1.5,
+                scale = canvas.getHeight() / canvas.getWidth(),
                 scaleW = winW - 150,
                 scaleH = winH - 100,
                 canW,
                 canH;
-            if (winW != 450) {
-                canW = scaleW;
-                canH = canW * scale;
-            } else {
-                canW = scaleW;
-                canH = scaleH;
+
+            switch (true) {
+                case (winW != 400):
+                    canW = scaleW;
+                    canH = canW * scale;
+                    break;
+                case (winW <= 500):
+                    canW = scaleW;
+                    canH = scaleH;
+                    break;
+                default:
+                    canW = scaleW;
+                    canH = scaleH;
             }
+
             return [canW, canH];
         },
         resizeCanvas = function () {
             var dimensions = getDimensions(),
-                /*winW = $(window).width(),
-                winH = $(window).height(),
-                canW = winW - 100,
-                canH = winH - 150,
-                zoomIn = winW / canW,
-                zoomOut = canW / winW,*/
                 width = dimensions[0],
                 height = dimensions[1],
                 zoom = 1;
@@ -150,52 +152,21 @@
                 zoom += 0.1;
             }
 
-            /*switch (true) {
-                case ((winW < 401) && (winH < 602)):
-                case ((winW < 401) && (winH > 602)):
-                    zoom = zoomOut;
-                    break;
-                case ((winW > 401) && (winH > 602)):
-                case ((winW > 401) && (winH < 602)):
-                    zoom = zoomIn;
-                    break;
-                    case winH < 600:
-                        zoom = canW / winW;
-                        break;
-                    case winH > 600:
-                        zoom = winW / canW;
-                        break;
-                default:
-                    zoom = 1;
-            }*/
-
-            /*if (winW < 600) {
-                zoom = canH / winH;
-
-                if ((zoom * canW) > winW) {
-                    zoom = winW / canW;
-                }
-
-            } else {
-                zoom = winW / canW;
-
-                if ((zoom * canH) > winH) {
-                    zoom = winH / canH;
-                }
-            }*/
             if (zoom != 1) {
                 canvas.setWidth(width).setHeight(height)
                     .setZoom(zoom).calcOffset().renderAll();
             }
         },
 
+
+        ///////// IMAGES /////////
+
+        // Reset image angle
         resetAngle = function () {
             var obj = canvas.getActiveObject();
             canvas.straightenObject(obj);
         },
 
-
-        ///////// IMAGES /////////
         // Check for images & update menus
         readRefs = function () {
             var refs = canvas.getObjects();
