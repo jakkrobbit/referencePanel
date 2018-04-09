@@ -21,7 +21,7 @@ body {
 /*References*/
 
 .refs {
-    border: 2px #d6d6d6 dotted;
+/*    border: 2px #d6d6d6 dotted;*/
     border-radius: 7px;
     margin: .5em;
     /*width: 100%;
@@ -35,6 +35,7 @@ body {
 }
 
 /*JQuery UI Styles*/
+
 .ui-selected,
 .ui-droppable-hover {
     border: 2px #6fb5f1 solid;
@@ -104,6 +105,24 @@ button {
     box-shadow: 0 0 10px 2px #6fb5f1;
     transition: border 150ms linear, box-shadow 150ms linear;
 }
+
+/*
+ //Media Queries 
+
+@media (min-width: 500px) {
+    .refs {
+        -webkit-transform: scale(1.2);
+        -webkit-transform-origin: 0 0;
+    }
+}
+
+@media (max-width: 200px) {
+    .refs {
+        -webkit-transform: scale(0.667);
+        -webkit-transform-origin: 0 0;
+    }
+}
+*/
 
 
 /*

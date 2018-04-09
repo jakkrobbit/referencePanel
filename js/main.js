@@ -42,10 +42,12 @@
         canvas = new fabric.Canvas('canvas', {
             width: 300,
             height: 450,
-            backgroundColor: null,
+            backgroundColor: '#2b2b2b',
             rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
             selectionKey: 'ctrlKey'
         }),
+        canW = canvas.getWidth(),
+        canH = canvas.getHeight(),
         intro1 = new fabric.Text('How to add\nreference images:', txtStyles).set({
             top: 50,
             left: 160
@@ -114,47 +116,29 @@
 
         ////// Responsive Canvas //////
         getDimensions = function () {
-            var winW = $(window).width(),
-                winH = $(window).height(),
-                scale = canvas.getHeight() / canvas.getWidth(),
-                scaleW = winW - 150,
-                scaleH = winH - 100,
-                canW,
-                canH;
-
-            switch (true) {
-                case (winW != 400):
-                    canW = scaleW;
-                    canH = canW * scale;
-                    break;
-                case (winW <= 500):
-                    canW = scaleW;
-                    canH = scaleH;
-                    break;
-                default:
-                    canW = scaleW;
-                    canH = scaleH;
+            var divWidth = $('#content').outerWidth(),
+                flexW,
+                flexH;
+            if (canW != divWidth) {
+                flexW = divWidth;
+                flexH = (flexW * canH) / canW;
+            } else {
+                flexW = canW;
+                flexH = canH;
             }
-
-            return [canW, canH];
+            return [flexW, flexH];
         },
         resizeCanvas = function () {
             var dimensions = getDimensions(),
                 width = dimensions[0],
                 height = dimensions[1],
-                zoom = 1;
-
-            if (width < 200) {
-                zoom -= 0.4;
-            } else if (width < 300) {
-                zoom -= 0.1;
-            } else if (width > 300) {
-                zoom += 0.1;
-            }
+                zoom = width / canW;
 
             if (zoom != 1) {
-                canvas.setWidth(width).setHeight(height)
-                    .setZoom(zoom).calcOffset().renderAll();
+                canvas.setDimensions({
+                    width: width,
+                    height: height
+                }).setZoom(zoom).calcOffset().renderAll();
             }
         },
 
