@@ -3,7 +3,6 @@
 
 (function () {
     'use strict';
-    //TODO: Add save/open/delete board funcs
     //TODO: Include layers w/ DnD functions
     //TODO: Move all images to view button
     var csInterface = new CSInterface(),
@@ -142,7 +141,7 @@
             var dimensions = getDimensions(),
                 width = dimensions[0],
                 height = dimensions[1],
-                zoom = (width / canW) > 1.1 ? 1.1 : (width / canW);           
+                zoom = (width / canW) > 1.1 ? 1.1 : (width / canW);
 
             if (zoom != 1) {
                 canvas.setDimensions({
@@ -214,7 +213,7 @@
                     imageData = file.getAsFile(),
                     URLobj = window.URL || window.webkitURL,
                     img = new Image(),
-                    imgfile = canvas.toDataURL();
+                    fs = require('fs');
                 img.src = URLobj.createObjectURL(imageData);
                 fabric.Image.fromURL(img.src, function (imgInst) {
                     imgInst.scaleToWidth(325);
@@ -222,7 +221,13 @@
                     imgInst.setCoords();
                     canvas.renderAll();
                 }, imgAttrs);
-                localStorage.setItem('pasted-ref', imgfile);
+                fs.writeFile('./refs/', imageData, function (err) {
+                    if (err) {
+                        console.log('Error: ' + err);
+                    } else {
+                        console.log('File saved');
+                    }
+                });
             }
             readRefs();
         },
@@ -327,8 +332,9 @@
             obj.setCoords();
             canvas.renderAll();
         },
-        // Save/Open/Delete Boards
 
+        //TODO: Add save/open/delete board funcs
+        // Save/Open/Delete Boards
         newboard = function () {
             var jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
                 savebox = cepEngine.showSaveDialogEx('Save Board', '/boards', ["json"], 'reference-board', 'JSON File (*.json)'),
