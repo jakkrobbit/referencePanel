@@ -119,12 +119,19 @@
             var divWidth = $('#content').outerWidth(),
                 flexW,
                 flexH;
-            if (canW != divWidth) {
-                flexW = divWidth;
-                flexH = (flexW * canH) / canW;
-            } else {
-                flexW = canW;
-                flexH = canH;
+
+            switch (true) {
+                case (divWidth > 410):
+                    flexW = divWidth - 100;
+                    flexH = canH;
+                    break;
+                case (canW > divWidth):
+                    flexW = divWidth - 100;
+                    flexH = (flexW * canH) / canW;
+                    break;
+                default:
+                    flexW = canW;
+                    flexH = canH;
             }
             return [flexW, flexH];
         },
@@ -132,7 +139,7 @@
             var dimensions = getDimensions(),
                 width = dimensions[0],
                 height = dimensions[1],
-                zoom = width / canW;
+                zoom = (width / canW) > 1.2 ? 1.2 : (width / canW);
 
             if (zoom != 1) {
                 canvas.setDimensions({
