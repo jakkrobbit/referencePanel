@@ -117,13 +117,16 @@
         ////// Responsive Canvas //////
         getDimensions = function () {
             var divWidth = $('#content').outerWidth(),
+                divHeight = $('#content').outerHeight(),
                 flexW,
                 flexH;
 
             switch (true) {
-                case (divWidth > 410):
+                case (divWidth > 450):
+                case (divHeight > 553):
+                case (divHeight < 550):
                     flexW = divWidth - 100;
-                    flexH = canH;
+                    flexH = divHeight - 40;
                     break;
                 case (canW > divWidth):
                     flexW = divWidth - 100;
@@ -139,7 +142,12 @@
             var dimensions = getDimensions(),
                 width = dimensions[0],
                 height = dimensions[1],
-                zoom = (width / canW) > 1.2 ? 1.2 : (width / canW);
+                zoom = (width / canW) > 1.1 ? 1.1 : (width / canW);
+
+            //Console log output
+            var logtxt = 'Canvas Size: ' + width + 'w x ' + height + 'h \n' +
+                'Div Size: ' + $('#content').outerWidth() + 'w x ' + $('#content').outerHeight() + 'h \n' +
+                'Window Size: ' + $(window).width() + 'w x ' + $(window).height() + 'h';
 
             if (zoom != 1) {
                 canvas.setDimensions({
@@ -147,6 +155,8 @@
                     height: height
                 }).setZoom(zoom).calcOffset().renderAll();
             }
+
+            console.log(logtxt);
         },
 
 
