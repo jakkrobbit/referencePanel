@@ -142,12 +142,7 @@
             var dimensions = getDimensions(),
                 width = dimensions[0],
                 height = dimensions[1],
-                zoom = (width / canW) > 1.1 ? 1.1 : (width / canW);
-
-            //Console log output
-            var logtxt = 'Canvas Size: ' + width + 'w x ' + height + 'h \n' +
-                'Div Size: ' + $('#content').outerWidth() + 'w x ' + $('#content').outerHeight() + 'h \n' +
-                'Window Size: ' + $(window).width() + 'w x ' + $(window).height() + 'h';
+                zoom = (width / canW) > 1.1 ? 1.1 : (width / canW);           
 
             if (zoom != 1) {
                 canvas.setDimensions({
@@ -156,7 +151,6 @@
                 }).setZoom(zoom).calcOffset().renderAll();
             }
 
-            console.log(logtxt);
         },
 
 
