@@ -8,6 +8,7 @@
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
+        fileCounter = 0,
 
         ///////// CANVAS /////////
         txtStyles = {
@@ -213,39 +214,41 @@
                     imageData = file.getAsFile(),
                     URLobj = window.URL || window.webkitURL,
                     img = new Image(),
-                    fs = require('fs');
+                    fs = require('fs'),
+                    path = require('path'),
+                    imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'paste-ref-' + (fileCounter++) + '.png');
+
                 img.src = URLobj.createObjectURL(imageData);
                 fabric.Image.fromURL(img.src, function (imgInst) {
                     imgInst.scaleToWidth(325);
                     canvas.add(imgInst).centerObject(imgInst);
                     imgInst.setCoords();
-                    canvas.renderAll();
+                    canvas.setActiveObject(imgInst).renderAll();
                 }, imgAttrs);
-                fs.writeFile('./refs/', imageData, function (err) {
-                    if (err) {
-                        console.log('Error: ' + err);
-                    } else {
-                        console.log('File saved');
-                    }
-                });
+
+                // Add file to refs folder
+                    fs.writeFile(imgPath, canvas.toDataURL(), {
+                        encoding: 'base64',
+                        flag: 'a+'
+                    }, function (err) {
+                        if (err) {
+                            console.log(err + '\nFileCounter #: ' + fileCounter);
+                        } else {
+                            console.log('File saved!\nFileCounter #: ' + fileCounter);
+                        }
+                    });
             }
             readRefs();
+            return fileCounter;
         },
 
         // Deleting
         deleteImage = function () {
-            var selected = canvas.getActiveObjects(),
-                selGroup = new fabric.ActiveSelection(selected, {
-                    canvas: canvas
-                });
-            if (selGroup) {
+            var selected = canvas.getActiveObjects();
+            if (selected) {
                 if (confirm('Deleted selected image(s)?')) {
-                    selGroup.forEachObject(function (obj) {
-                        canvas.remove(obj);
-                    });
+                    canvas.remove(...selected);
                 }
-            } else {
-                return false;
             }
             canvas.discardActiveObject().renderAll();
             readRefs();
