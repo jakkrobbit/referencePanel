@@ -205,6 +205,7 @@
             e.stopPropagation();
             canvas.remove(introTxt);
 
+            ++fileCounter;
             //Loop through files
             for (var i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') == -1) {
@@ -212,13 +213,15 @@
                 }
                 var file = items[i],
                     imageData = file.getAsFile(),
+                    //                    nodeData = imageData.replace(/^data:image\/\w+;base64,/, ''),
                     URLobj = window.URL || window.webkitURL,
                     img = new Image(),
                     fs = require('fs'),
                     path = require('path'),
-                    imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'paste-ref-' + (fileCounter++) + '.png');
+                    imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'paste-ref_' + fileCounter + '.png');
 
                 img.src = URLobj.createObjectURL(imageData);
+                
                 fabric.Image.fromURL(img.src, function (imgInst) {
                     imgInst.scaleToWidth(325);
                     canvas.add(imgInst).centerObject(imgInst);
@@ -227,16 +230,16 @@
                 }, imgAttrs);
 
                 // Add file to refs folder
-                    fs.writeFile(imgPath, canvas.toDataURL(), {
-                        encoding: 'base64',
-                        flag: 'a+'
-                    }, function (err) {
-                        if (err) {
-                            console.log(err + '\nFileCounter #: ' + fileCounter);
-                        } else {
-                            console.log('File saved!\nFileCounter #: ' + fileCounter);
-                        }
-                    });
+                fs.writeFile(imgPath, img, {
+                    encoding: 'base64',
+                    flag: 'w+'
+                }, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('File saved!\nFileCounter: ' + fileCounter + '\nImage Info: ' + img);
+
+                });
             }
             readRefs();
             return fileCounter;
