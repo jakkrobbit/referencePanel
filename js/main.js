@@ -213,15 +213,11 @@
                 }
                 var file = items[i],
                     imageData = file.getAsFile(),
-                    //                    nodeData = imageData.replace(/^data:image\/\w+;base64,/, ''),
                     URLobj = window.URL || window.webkitURL,
-                    img = new Image(),
-                    fs = require('fs'),
-                    path = require('path'),
-                    imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'paste-ref_' + fileCounter + '.png');
+                    img = new Image();
 
                 img.src = URLobj.createObjectURL(imageData);
-                
+
                 fabric.Image.fromURL(img.src, function (imgInst) {
                     imgInst.scaleToWidth(325);
                     canvas.add(imgInst).centerObject(imgInst);
@@ -229,17 +225,23 @@
                     canvas.setActiveObject(imgInst).renderAll();
                 }, imgAttrs);
 
-                // Add file to refs folder
-                fs.writeFile(imgPath, img, {
+
+                // Node variables
+                var fs = require('fs'),
+                    path = require('path'),
+                    imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref' + ++fileCounter + '.png'),
+                    typedArr = new Uint32Array(img),  
+                    nodeImg = new Buffer(typedArr, 'base64');
+
+                fs.writeFile(imgPath, nodeImg, {
                     encoding: 'base64',
                     flag: 'w+'
                 }, function (err) {
                     if (err) {
                         throw err;
                     }
-                    console.log('File saved!\nFileCounter: ' + fileCounter + '\nImage Info: ' + img);
-
                 });
+                console.log('File saved!\nFileCounter: ' + fileCounter + '\nImage Info: ' + nodeImg);
             }
             readRefs();
             return fileCounter;
