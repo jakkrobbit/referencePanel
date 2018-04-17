@@ -8,7 +8,7 @@
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
-        fileCounter = 0,
+        counter = 0,
 
         ///////// CANVAS /////////
         txtStyles = {
@@ -166,11 +166,11 @@
         readRefs = function () {
             var refs = canvas.getObjects();
             if (refs) {
-                csInterface.updateContextMenuItem('saveBoard', true, false);
-                csInterface.updatePanelMenuItem('Save Board', true, false);
+                csInterface.updateContextMenuItem('newBoard', true, false);
+                csInterface.updatePanelMenuItem('Create New Board', true, false);
             } else {
-                csInterface.updateContextMenuItem('saveBoard', false, false);
-                csInterface.updatePanelMenuItem('Save Board', false, false);
+                csInterface.updateContextMenuItem('newBoard', false, false);
+                csInterface.updatePanelMenuItem('Create New Board', false, false);
             }
         },
 
@@ -213,27 +213,27 @@
                 var file = items[i],
                     imageData = file.getAsFile(),
                     URLobj = window.URL || window.webkitURL,
-                    img = new Image();
+                    img = new Image(),
+                    refNum = (counter == 0) ? ++counter : counter++;
 
                 img.src = URLobj.createObjectURL(imageData);
 
                 fabric.Image.fromURL(img.src, function (imgInst) {
-                    // Node variables
-                    var fs = require('fs'),
-                        path = require('path'),
-                        imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref' + ++fileCounter + '.png'),
-                        sizes = imgInst.getOriginalSize(),
-                        nodeData = canvas.toDataURL({
-                            width: sizes.width,
-                            height: sizes.height
-                        }),
-                        nodeImg = nodeData.replace(/^data:image\/(png|jpg);base64,/, '');
 
                     imgInst.scaleToWidth(325);
                     canvas.add(imgInst).centerObject(imgInst);
                     imgInst.setCoords();
                     canvas.setActiveObject(imgInst).renderAll();
-                    
+
+                    var fs = require('fs'),
+                        path = require('path'),
+                        imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref_' + refNum + '.png'),
+                        nodeData = canvas.toDataURL({
+                            width: imgInst.width,
+                            height: imgInst.height
+                        }),
+                        nodeImg = nodeData.replace(/^data:image\/(png|jpg);base64,/, '');
+
                     // Write image file
                     fs.writeFile(imgPath, nodeImg, {
                         encoding: 'base64',
@@ -243,13 +243,14 @@
                             throw err;
                         }
                     });
-                    console.log('File saved!\nFileCounter: ' + fileCounter + '\nImage Info: ' + nodeImg);
+
+                    console.log('File saved!\nFileCounter: ' + counter);
                 }, imgAttrs);
-
-
+                
+                counter = refNum;
             }
             readRefs();
-            return fileCounter;
+            return counter;
         },
 
         // Deleting
@@ -350,7 +351,7 @@
         // Save/Open/Delete Boards
         newboard = function () {
             var jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
-                savebox = cepEngine.showSaveDialogEx('Save Board', '/boards', ["json"], 'reference-board', 'JSON File (*.json)'),
+                savebox = cepEngine.showSaveDialogEx('Create New Board', '/boards', ["json"], 'reference-board', 'JSON File (*.json)'),
                 path = savebox.data,
                 boardData = cepEngine.writeFile(path + '.json', jsondata);
             if (boardData.err != 0) {
@@ -415,7 +416,7 @@
         '<MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>' +
         '<MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>' +
         '<MenuItem Label="---" />' +
-        '<MenuItem Id="saveBoard" Label="Save Board" Enabled="false"/>' +
+        '<MenuItem Id="newBoard" Label="Create New Board" Enabled="false"/>' +
         '<MenuItem Id="openBoard" Label="Open Board" Enabled="false"/>' +
         '<MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/>' +
         '<MenuItem Label="---" />' +
@@ -441,7 +442,7 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                case "saveBoard":
+                case "newBoard":
                     newboard();
                     break;
                 case "openBoard":
@@ -475,7 +476,7 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                case "saveBoard":
+                case "newBoard":
                     newboard();
                     break;
                 case "openBoard":
