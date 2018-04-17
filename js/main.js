@@ -205,7 +205,6 @@
             e.stopPropagation();
             canvas.remove(introTxt);
 
-            ++fileCounter;
             //Loop through files
             for (var i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') == -1) {
@@ -219,29 +218,35 @@
                 img.src = URLobj.createObjectURL(imageData);
 
                 fabric.Image.fromURL(img.src, function (imgInst) {
+                    // Node variables
+                    var fs = require('fs'),
+                        path = require('path'),
+                        imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref' + ++fileCounter + '.png'),
+                        sizes = imgInst.getOriginalSize(),
+                        nodeData = canvas.toDataURL({
+                            width: sizes.width,
+                            height: sizes.height
+                        }),
+                        nodeImg = nodeData.replace(/^data:image\/(png|jpg);base64,/, '');
+
                     imgInst.scaleToWidth(325);
                     canvas.add(imgInst).centerObject(imgInst);
                     imgInst.setCoords();
                     canvas.setActiveObject(imgInst).renderAll();
+                    
+                    // Write image file
+                    fs.writeFile(imgPath, nodeImg, {
+                        encoding: 'base64',
+                        flag: 'w+'
+                    }, function (err) {
+                        if (err) {
+                            throw err;
+                        }
+                    });
+                    console.log('File saved!\nFileCounter: ' + fileCounter + '\nImage Info: ' + nodeImg);
                 }, imgAttrs);
 
 
-                // Node variables
-                var fs = require('fs'),
-                    path = require('path'),
-                    imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref' + ++fileCounter + '.png'),
-                    typedArr = new Uint32Array(img),  
-                    nodeImg = new Buffer(typedArr, 'base64');
-
-                fs.writeFile(imgPath, nodeImg, {
-                    encoding: 'base64',
-                    flag: 'w+'
-                }, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                });
-                console.log('File saved!\nFileCounter: ' + fileCounter + '\nImage Info: ' + nodeImg);
             }
             readRefs();
             return fileCounter;
