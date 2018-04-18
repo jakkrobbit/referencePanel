@@ -225,23 +225,9 @@
 
                     var fs = require('fs'),
                         path = require('path'),
-//                        dir = '../refs',
                         dir = path.join(__dirname, '..', 'referenceWindow', 'refs'),
                         folder = fs.readdirSync(dir),
-//                        refs = folder.data,
                         refNum = ++folder.length,
-                        /*refNum = function () {
-                            var dir = '../refs',
-                            fs.readdir(dir, (files) => {
-                                pics = files.length;
-                                return pics;
-                            });
-                            count = cepEngine.readdir(dir),
-                            result = count.data;
-                            
-                            pics = result.length;
-                            return pics;
-                        },*/
                         imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref_' + refNum + '.png'),
                         nodeData = canvas.toDataURL({
                             width: imgInst.width,
