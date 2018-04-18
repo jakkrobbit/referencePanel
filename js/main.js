@@ -8,7 +8,6 @@
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
-        counter = 0,
 
         ///////// CANVAS /////////
         txtStyles = {
@@ -213,8 +212,7 @@
                 var file = items[i],
                     imageData = file.getAsFile(),
                     URLobj = window.URL || window.webkitURL,
-                    img = new Image(),
-                    refNum = (counter == 0) ? ++counter : counter++;
+                    img = new Image();
 
                 img.src = URLobj.createObjectURL(imageData);
 
@@ -227,6 +225,23 @@
 
                     var fs = require('fs'),
                         path = require('path'),
+//                        dir = '../refs',
+                        dir = path.join(__dirname, '..', 'referenceWindow', 'refs'),
+                        folder = fs.readdirSync(dir),
+//                        refs = folder.data,
+                        refNum = ++folder.length,
+                        /*refNum = function () {
+                            var dir = '../refs',
+                            fs.readdir(dir, (files) => {
+                                pics = files.length;
+                                return pics;
+                            });
+                            count = cepEngine.readdir(dir),
+                            result = count.data;
+                            
+                            pics = result.length;
+                            return pics;
+                        },*/
                         imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref_' + refNum + '.png'),
                         nodeData = canvas.toDataURL({
                             width: imgInst.width,
@@ -244,13 +259,10 @@
                         }
                     });
 
-                    console.log('File saved!\nFileCounter: ' + counter);
+                    console.log('File saved!\nFileCounter: ' + refNum);
                 }, imgAttrs);
-                
-                counter = refNum;
             }
             readRefs();
-            return counter;
         },
 
         // Deleting
