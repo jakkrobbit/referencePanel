@@ -351,13 +351,27 @@
         //TODO: Add save/open/delete board funcs
         // Save/Open/Delete Boards
         newboard = function () {
-            var jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
-                savebox = cepEngine.showSaveDialogEx('Create New Board', '/boards', ["json"], 'reference-board', 'JSON File (*.json)'),
-                path = savebox.data,
-                boardData = cepEngine.writeFile(path + '.json', jsondata);
-            if (boardData.err != 0) {
+            var fs = require('fs'),
+                path = require('path'),
+                // dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                // folder = fs.readdirSync(dir),
+                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
+                savebox = prompt('Give this board a name: '),
+                boardFile = path.join(__dirname, '..', 'referenceWindow', 'boards', savebox + '.json');
+
+            if (savebox) {
+                fs.writeFile(boardFile, jsondata, (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                });
+            }
+
+
+            /*{
                 alert('Error saving file!');
             }
+*/
             /*var jsondata = JSON.stringify(canvas),
                 userinput = $('#boardname').val();
 
