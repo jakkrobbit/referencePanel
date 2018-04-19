@@ -229,9 +229,12 @@
                         folder = fs.readdirSync(dir),
                         refNum = ++folder.length,
                         imgPath = path.join(__dirname, '..', 'referenceWindow', 'refs', 'pasted-ref_' + refNum + '.png'),
+                        refsize = imgInst.getBoundingRect(),
                         nodeData = canvas.toDataURL({
-                            width: imgInst.width,
-                            height: imgInst.height
+                            top: refsize.top + 5,
+                            left: refsize.left + 5,
+                            width: refsize.width - 10,
+                            height: refsize.height - 10
                         }),
                         nodeImg = nodeData.replace(/^data:image\/(png|jpg);base64,/, '');
 
