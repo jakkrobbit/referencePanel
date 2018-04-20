@@ -383,11 +383,27 @@
                 fs = require('fs'),
                 path = require('path'),
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                folder = fs.readdirSync(dir);
+                folder = fs.readdirSync(dir),
+                mssg = '<label class="topcoat-dropdown-label" for="boardfiles">Reference Board List: </label><select class="topcoat-dropdown" id="boardfiles"></select>',
+                $dropdown = $('#boardfiles'),
+                $opt = $('#boardfiles option:selected').text();
 
-            if (opendlg.data) {
+            /*if (opendlg.data) {
                 canvas.clear();
-            }
+            }*/
+            
+            folder.forEach(function (file) {
+               $dropdown.append('<option>' + file + '</option>'); 
+            });
+            
+            $.fancyprompt({
+                title: 'Open Reference Board',
+                message: mssg,
+                okButton: 'Open',
+                noButton: 'Cancel',
+                callback: function () {
+                }
+            });
 
             $.getJSON(opendlg.data, function (data) {
                 canvas.loadFromJSON(JSON.stringify(data), function () {
