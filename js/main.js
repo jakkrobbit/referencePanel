@@ -356,40 +356,27 @@
                 // dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
                 // folder = fs.readdirSync(dir),
                 jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
-                savebox = prompt('Give this board a name: '),
-                boardFile = path.join(__dirname, '..', 'referenceWindow', 'boards', savebox + '.json');
-
-            if (savebox) {
-                fs.writeFile(boardFile, jsondata, (err) => {
-                    if (err) {
-                        throw err;
-                    }
-                });
-            }
-
-
-            /*{
-                alert('Error saving file!');
-            }
-*/
-            /*var jsondata = JSON.stringify(canvas),
-                userinput = $('#boardname').val();
+                //                savebox = prompt('Give this board a name: '),
+                $boardName = $('#boardname').val(),
+                boardFile = path.join(__dirname, '..', 'referenceWindow', 'boards', $boardName + '.json');
 
             $.fancyprompt({
                 title: 'Save New Reference Board',
                 message: '<label>Board Name: <input type="text" id="boardname" class="topcoat-text-input--large" placeholder="Reference Board" required/></label>',
-                okbutton: 'Save',
-                nobutton: 'Cancel',
+                okButton: 'Save',
+                noButton: 'Cancel',
                 callback: function () {
-                    localStorage.setItem("'" + userinput + "'", "'" + jsondata + "'");
-                    console.log('Input value:' + userinput + '\n Canvas Data:' + jsondata);
+                    fs.writeFileSync(boardFile, jsondata);
                 }
-            });*/
+            });
 
         },
         openboard = function () {
             var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
-                pastedimg = localStorage.getItem('pasted-ref');
+                fs = require('fs'),
+                path = require('path'),
+                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                 folder = fs.readdirSync(dir);
 
             if (opendlg.data) {
                 canvas.clear();

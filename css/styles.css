@@ -33,23 +33,6 @@ body {
     width: auto;
 }
 
-/*JQuery UI Styles*/
-
-.ui-selected,
-.ui-droppable-hover {
-    border: 2px #6fb5f1 solid;
-    box-shadow: 0 0 10px 2px #6fb5f1;
-}
-
-.ui-selecting {
-    box-shadow: 0 0 10px 2px #6fb5f1;
-}
-
-.ui-selectable-helper {
-    border: 1px #d6d6d6 dashed;
-    border-radius: 7px;
-}
-
 
 
 /*Nav bar*/
@@ -68,60 +51,6 @@ button {
     /*    padding: 2em;*/
     margin: 0 7em;
 }
-
-
-/*How-to Div*/
-
-.intro,
-.intro li {
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    white-space: normal;
-    line-height: inherit;
-    text-align: center;
-}
-
-.intro span,
-.intro p {
-    font-size: 1.6em;
-}
-
-.intro li {
-    margin: 1em auto;
-    list-style: none;
-    width: 120px;
-    height: 120px;
-    border: 2px #c6c8c8 dashed;
-    border-radius: 7px;
-    padding: .5em;
-    transition: border 150ms linear, box-shadow 150ms linear;
-}
-
-.highlight {
-    border: 2px #6fb5f1 solid;
-    box-shadow: 0 0 10px 2px #6fb5f1;
-    transition: border 150ms linear, box-shadow 150ms linear;
-}
-
-/*
- //Media Queries 
-
-@media (min-width: 500px) {
-    .refs {
-        -webkit-transform: scale(1.2);
-        -webkit-transform-origin: 0 0;
-    }
-}
-
-@media (max-width: 200px) {
-    .refs {
-        -webkit-transform: scale(0.667);
-        -webkit-transform-origin: 0 0;
-    }
-}
-*/
 
 
 /*

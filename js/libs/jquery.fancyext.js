@@ -14,12 +14,10 @@
             src: '<div class="topcoat-dialog">' +
                 '<h3>' + opts.title + '</h3>' +
                 '<p>' + opts.message + '</p>' +
-                '<div class="topcoat-button-bar">' +
-                '<div class="topcoat-button-bar__item">' +
-                '<button data-value="0" data-fancybox-close class="topcoat-button-bar__button">' + opts.noButton + '</button>' +
-                '</div>' +
-                '<div class="topcoat-button-bar__item">' +
-                '<button data-value="1" data-fancybox-close class="topcoat-button-bar__button">' + opts.okButton + '</button>' +
+                '<div>' +
+                '<div class="bttnbox">' +
+                '<button data-value="1" data-fancybox-close class="topcoat-button--large--cta">' + opts.okButton + '</button>' +
+                '<button data-value="0" data-fancybox-close class="topcoat-button--large">' + opts.noButton + '</button>' +
                 '</div>' +
                 '</div>' +
                 '</div>',
@@ -34,7 +32,7 @@
                     '</div>' +
                     '</div>',
                 afterClose: function (instance, current, e) {
-                    var button = e ? e.target || e.currentTarget : null;
+                    var button = e ? e.target || e.currentTarget || e.originalEvent.target : null;
                     var value = button ? $(button).data('value') : 0;
 
                     opts.callback(value);
