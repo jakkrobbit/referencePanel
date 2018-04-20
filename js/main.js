@@ -379,8 +379,7 @@
 
         },
         openboard = function () {
-            var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
-                fs = require('fs'),
+            var fs = require('fs'),
                 path = require('path'),
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
                 folder = fs.readdirSync(dir),
@@ -391,24 +390,26 @@
             /*if (opendlg.data) {
                 canvas.clear();
             }*/
-            
+
             folder.forEach(function (file) {
-               $dropdown.append('<option>' + file + '</option>'); 
+                $dropdown.append('<option>' + file + '</option>');
             });
-            
+
             $.fancyprompt({
                 title: 'Open Reference Board',
                 message: mssg,
                 okButton: 'Open',
                 noButton: 'Cancel',
                 callback: function () {
+                    var pickedBoard = path.join(dir, $opt);
+                    fs.readFile(pickedBoard, (err, data) => {
+                        $.getJSON(data, (json) => {
+                            canvas.loadFromJSON(JSON.stringify(json), function () {
+                                canvas.renderAll();
+                            });
+                        });
+                    });
                 }
-            });
-
-            $.getJSON(opendlg.data, function (data) {
-                canvas.loadFromJSON(JSON.stringify(data), function () {
-                    canvas.renderAll();
-                });
             });
 
             /*var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
