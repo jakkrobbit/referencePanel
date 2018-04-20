@@ -353,30 +353,37 @@
         newboard = function () {
             var fs = require('fs'),
                 path = require('path'),
-                // dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
                 // folder = fs.readdirSync(dir),
                 jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
-                //                savebox = prompt('Give this board a name: '),
-                $boardName = $('#boardname').val(),
-                boardFile = path.join(__dirname, '..', 'referenceWindow', 'boards', $boardName + '.json');
+                saveprompt = prompt('Give this board a name: '),
+                //                $boardName = $('#boardname').val(),
+                boardFile = path.join(dir, saveprompt + '.json');
 
-            $.fancyprompt({
+            if (saveprompt) {
+                fs.writeFileSync(boardFile, jsondata);
+            }
+
+            /*$.fancyprompt({
                 title: 'Save New Reference Board',
-                message: '<label>Board Name: <input type="text" id="boardname" class="topcoat-text-input--large" placeholder="Reference Board" required/></label>',
+                message: '<label>Board Name: <input type="text" id="boardname" class="topcoat-text-input--large" required/></label>',
                 okButton: 'Save',
                 noButton: 'Cancel',
                 callback: function () {
+                    var $board = $('#saveprompt').serializeArray(),
+                        boardFile = path.join(__dirname, '..', 'referenceWindow', 'boards', $board.value + '.json');
                     fs.writeFileSync(boardFile, jsondata);
+                    console.log($board.value);
                 }
-            });
+            });*/
 
         },
         openboard = function () {
             var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
                 fs = require('fs'),
                 path = require('path'),
-                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                 folder = fs.readdirSync(dir);
+                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                folder = fs.readdirSync(dir);
 
             if (opendlg.data) {
                 canvas.clear();

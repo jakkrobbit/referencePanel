@@ -52,6 +52,15 @@ button {
     margin: 0 7em;
 }
 
+/*Fancyprompt Window*/
+
+.bttnbox {
+    display: flex;
+}
+
+.bttnbox button {
+    margin: auto .5em;
+}
 
 /*
 Those classes will be edited at runtime with values specified
