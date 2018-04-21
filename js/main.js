@@ -384,23 +384,21 @@
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
                 $dropdown = $('#boardfiles'),
                 folder = fs.readdirSync(dir),
-                /*options = function () {
-                    folder.forEach(function (file) {
-                        return '<option>' + file + '</option>';
+                refs = [],
+                options = function () {
+                    folder.forEach(function (ref) {
+                        refs.push('<option>' + ref + '</option>');
+                        $dropdown.append(ref);
                     });
-                },*/
-                mssg = `<label class="topcoat-dropdown-label" for="boardfiles">Reference Board List: </label>
-                <select class="topcoat-dropdown" id="boardfiles"></select>`,
+
+                    return refs;
+                },
                 $opt = $('#boardfiles option:selected').text();
 
-            /*if (opendlg.data) {
-                canvas.clear();
-            }*/
 
-            $.each(folder, (i, val) => {
-                $dropdown.append(`<option value='${val}'>${val}</option>`);
-                console.log(val);
-            });
+            options();
+            var mssg = `<label class="topcoat-dropdown-label" for="boardfiles">Reference Board List: </label>
+                <select class="topcoat-dropdown" id="boardfiles">${refs}</select>`;
 
             $.fancyprompt({
                 title: 'Open Reference Board',
