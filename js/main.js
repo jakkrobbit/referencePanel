@@ -382,17 +382,24 @@
             var fs = require('fs'),
                 path = require('path'),
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                folder = fs.readdirSync(dir),
-                mssg = '<label class="topcoat-dropdown-label" for="boardfiles">Reference Board List: </label><select class="topcoat-dropdown" id="boardfiles"></select>',
                 $dropdown = $('#boardfiles'),
+                folder = fs.readdirSync(dir),
+                /*options = function () {
+                    folder.forEach(function (file) {
+                        return '<option>' + file + '</option>';
+                    });
+                },*/
+                mssg = `<label class="topcoat-dropdown-label" for="boardfiles">Reference Board List: </label>
+                <select class="topcoat-dropdown" id="boardfiles"></select>`,
                 $opt = $('#boardfiles option:selected').text();
 
             /*if (opendlg.data) {
                 canvas.clear();
             }*/
 
-            folder.forEach(function (file) {
-                $dropdown.append('<option>' + file + '</option>');
+            $.each(folder, (i, val) => {
+                $dropdown.append(`<option value='${val}'>${val}</option>`);
+                console.log(val);
             });
 
             $.fancyprompt({
@@ -400,15 +407,17 @@
                 message: mssg,
                 okButton: 'Open',
                 noButton: 'Cancel',
-                callback: function () {
+                callback: function (result) {
                     var pickedBoard = path.join(dir, $opt);
-                    fs.readFile(pickedBoard, (err, data) => {
-                        $.getJSON(data, (json) => {
-                            canvas.loadFromJSON(JSON.stringify(json), function () {
-                                canvas.renderAll();
+                    if (result) {
+                        fs.readFile(pickedBoard, (err, data) => {
+                            $.getJSON(data, (json) => {
+                                canvas.loadFromJSON(JSON.stringify(json), function () {
+                                    canvas.renderAll();
+                                });
                             });
                         });
-                    });
+                    }
                 }
             });
 

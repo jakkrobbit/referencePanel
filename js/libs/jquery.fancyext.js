@@ -17,8 +17,8 @@
                 '<p>' + opts.message + '</p>' +
                 '<div>' +
                 '<div class="bttnbox">' +
-                '<button data-button="save" data-fancybox-close class="topcoat-button--large--cta">' + opts.okButton + '</button>' +
-                '<button data-button="cancel" type="button" data-fancybox-close class="topcoat-button--large">' + opts.noButton + '</button>' +
+                '<button data-result="1" data-fancybox-close class="topcoat-button--large--cta">' + opts.okButton + '</button>' +
+                '<button data-result="0" type="button" data-fancybox-close class="topcoat-button--large">' + opts.noButton + '</button>' +
                 '</div>' +
                 '</div>' +
                 '</form>' +
@@ -34,12 +34,11 @@
                     '</div>' +
                     '</div>',
                 afterClose: function (instance, current, e) {
-                    var button = e ? e.target || e.currentTarget || e.originalEvent.target : null;
-                    var value = button ? $(button).data('button') : 0;
-
-                    if (value == 'save') {
-                        opts.callback();
-                    }
+                    var button = e ? e.target || e.currentTarget : null;
+                    var result = button ? $(button).data('result') : 0;
+                    
+                    // Pass result to the callback function
+                    opts.callback(result);
                 }
             }
         });
