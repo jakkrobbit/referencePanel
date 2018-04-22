@@ -385,6 +385,7 @@
                 //                $dropdown = $('#boardfiles'),
                 folder = fs.readdirSync(dir),
                 refs = [],
+                file,
                 options = function () {
                     folder.forEach(function (ref) {
                         refs.push(`<option>${ref}</option>`);
@@ -404,22 +405,22 @@
                 message: mssg,
                 okButton: 'Open',
                 noButton: 'Cancel',
-                beforeClose: function () {
-                    var $opt;
-                    $opt = $('select').val();
-                    console.log('Selected option: ' + $opt);
+                getData: function (result) {
+                    if (result) {
+                        file = $('select').val();
+                    }
+                    return file;
                 },
                 callback: function (result) {
-
-                    //                        filepath = path.join(__dirname, '..', 'referenceWindow', 'boards', $opt);
+                    var filepath = path.join(__dirname, '..', 'referenceWindow', 'boards', file);
+                    
                     if (result) {
-
-                        /*$.getJSON(fs.readFileSync(filepath), (data) => {
+                        $.getJSON(filepath, (data) => {
                             canvas.loadFromJSON(JSON.stringify(data), function () {
                                 canvas.renderAll();
-                                console.log('getJSON() working' + $opt);
+                                console.log('getJSON() working: ' + data);
                             });
-                        });*/
+                        });
                     }
                 }
             });
