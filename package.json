@@ -19,7 +19,6 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/gesturepoke/reference-panel#readme",
   "dependencies": {
-    "dragsterjs": "^1.6.2",
     "express": "^4.16.3"
   }
 }

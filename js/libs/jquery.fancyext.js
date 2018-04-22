@@ -6,6 +6,7 @@
             message: '',
             okButton: 'OK',
             noButton: 'Cancel',
+            getData: $.noop,
             callback: $.noop
         }, opts || {});
 
@@ -13,7 +14,7 @@
             type: 'html',
             src: '<div class="topcoat-dialog">' +
                 '<h3>' + opts.title + '</h3>' +
-                '<form id="saveprompt" method="post">' +
+                '<form id="fancyprompt" method="post">' +
                 '<p>' + opts.message + '</p>' +
                 '<div>' +
                 '<div class="bttnbox">' +
@@ -33,10 +34,17 @@
                     '<div class="fancybox-stage"></div>' +
                     '</div>' +
                     '</div>',
+                beforeClose: function (instance, current, e) {
+                    var button = e ? e.target || e.currentTarget : null;
+                    var result = button ? $(button).data('result') : 0;
+
+                    // Read result before window is closed
+                    opts.getData(result);
+                },
                 afterClose: function (instance, current, e) {
                     var button = e ? e.target || e.currentTarget : null;
                     var result = button ? $(button).data('result') : 0;
-                    
+
                     // Pass result to the callback function
                     opts.callback(result);
                 }

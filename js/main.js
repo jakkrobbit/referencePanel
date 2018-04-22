@@ -382,39 +382,44 @@
             var fs = require('fs'),
                 path = require('path'),
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                $dropdown = $('#boardfiles'),
+                //                $dropdown = $('#boardfiles'),
                 folder = fs.readdirSync(dir),
                 refs = [],
                 options = function () {
                     folder.forEach(function (ref) {
-                        refs.push('<option>' + ref + '</option>');
-                        $dropdown.append(ref);
+                        refs.push(`<option>${ref}</option>`);
+                        //                        $dropdown.append(ref);
                     });
 
                     return refs;
-                },
-                $opt = $('#boardfiles option:selected').text();
+                };
 
 
             options();
-            var mssg = `<label class="topcoat-dropdown-label" for="boardfiles">Reference Board List: </label>
-                <select class="topcoat-dropdown" id="boardfiles">${refs}</select>`;
+            var mssg = `<label class="topcoat-dropdown-label" for="boards">Board List: </label>
+                <select class="topcoat-dropdown" id="boards">${refs}</select>`;
 
             $.fancyprompt({
                 title: 'Open Reference Board',
                 message: mssg,
                 okButton: 'Open',
                 noButton: 'Cancel',
+                beforeClose: function () {
+                    var $opt;
+                    $opt = $('select').val();
+                    console.log('Selected option: ' + $opt);
+                },
                 callback: function (result) {
-                    var pickedBoard = path.join(dir, $opt);
+
+                    //                        filepath = path.join(__dirname, '..', 'referenceWindow', 'boards', $opt);
                     if (result) {
-                        fs.readFile(pickedBoard, (err, data) => {
-                            $.getJSON(data, (json) => {
-                                canvas.loadFromJSON(JSON.stringify(json), function () {
-                                    canvas.renderAll();
-                                });
+
+                        /*$.getJSON(fs.readFileSync(filepath), (data) => {
+                            canvas.loadFromJSON(JSON.stringify(data), function () {
+                                canvas.renderAll();
+                                console.log('getJSON() working' + $opt);
                             });
-                        });
+                        });*/
                     }
                 }
             });
