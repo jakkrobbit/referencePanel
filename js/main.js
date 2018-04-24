@@ -247,8 +247,8 @@
                             throw err;
                         }
                     });
-
-                    console.log('File saved!\nFileCounter: ' + refNum);
+                    // Change src so image is still viewable upon reopening board file
+                    img.src = imgPath;
                 }, imgAttrs);
             }
             readRefs();
@@ -413,7 +413,7 @@
                 },
                 callback: function (result) {
                     var filepath = path.join(__dirname, '..', 'referenceWindow', 'boards', file);
-                    
+
                     if (result) {
                         $.getJSON(filepath, (data) => {
                             canvas.loadFromJSON(JSON.stringify(data), function () {
