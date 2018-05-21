@@ -349,22 +349,35 @@
         },
 
         //TODO: Add save/open/delete board funcs
+
+        // Autosave board files
+        updateBoard = function (boardname) {
+            var fs = require('fs'),
+                stream = fs.createWriteStream(boardname, {
+                    flags: 'a'
+                }),
+                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
+
+            stream.write(jsondata);
+            console.log('File saving');
+        },
+
         // Save/Open/Delete Boards
         saveboard = function () {
             var fs = require('fs'),
                 path = require('path'),
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                // folder = fs.readdirSync(dir),
                 jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
                 saveprompt = prompt('Give this board a name: '),
-                //                $boardName = $('#boardname').val(),
                 boardFile = path.join(dir, saveprompt + '.json');
 
             if (saveprompt) {
                 fs.writeFileSync(boardFile, jsondata);
+                setInterval(function () {
+                    updateBoard(boardFile);
+                }, 30000);
             }
 
-            saveboard.saved = true;
 
             /*$.fancyprompt({
                 title: 'Save New Reference Board',
@@ -420,24 +433,14 @@
                                 canvas.renderAll();
                             });
                         });
+                        setInterval(function () {
+                            updateBoard(filepath);
+                        }, 30000);
                     }
                 }
             });
 
-            openboard.opened = true;
         },
-        updateBoard = function () {
-            var fs = require('fs'),
-                path = require('path'),
-                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                stream = fs.createWriteStream(dir, {
-                    flags: 'a'
-                }),
-                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
-            stream.write(jsondata);
-            console.log('File saved, maybe');
-        },
-
 
         ///////// PS INTERACTION /////////
         menuXML = '<Menu>' +
@@ -589,9 +592,6 @@
             }
         });
         canvas.on('mouse:dblclick', resetAngle);
-
-        // Saved board info
-        setInterval(updateBoard, 30000);
 
     }
 
