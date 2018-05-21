@@ -8,6 +8,7 @@
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
+        $autosave = $('.topcoat-switch__input'),
 
         ///////// CANVAS /////////
         txtStyles = {
@@ -351,14 +352,14 @@
         //TODO: Add save/open/delete board funcs
 
         // Autosave board files
-        updateBoard = function (boardname) {
+        updateBoard = function (json) {
             var fs = require('fs'),
-                stream = fs.createWriteStream(boardname, {
+                path = require('path'),
+                stream = fs.createWriteStream(path, {
                     flags: 'a'
-                }),
-                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
+                });
 
-            stream.write(jsondata);
+            stream.write(json);
             console.log('File saving');
         },
 
@@ -366,31 +367,44 @@
         saveboard = function () {
             var fs = require('fs'),
                 path = require('path'),
-                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
-                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling'])),
-                saveprompt = prompt('Give this board a name: '),
-                boardFile = path.join(dir, saveprompt + '.json');
+                filename,
+                //                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
+            //                saveprompt = prompt('Give this board a name: '),
+            //                boardFile = path.join(dir, saveprompt + '.json');
 
-            if (saveprompt) {
-                fs.writeFileSync(boardFile, jsondata);
-                setInterval(function () {
-                    updateBoard(boardFile);
-                }, 30000);
-            }
+            /*            if (saveprompt) {
+                            fs.writeFileSync(boardFile, jsondata);
+                            $autosave.prop({
+                                disabled: false,
+                                checked: true
+                            });
+                        }*/
 
 
-            /*$.fancyprompt({
+            $.fancyprompt({
                 title: 'Save New Reference Board',
                 message: '<label>Board Name: <input type="text" id="boardname" class="topcoat-text-input--large" required/></label>',
                 okButton: 'Save',
                 noButton: 'Cancel',
-                callback: function () {
-                    var $board = $('#saveprompt').serializeArray(),
-                        boardFile = path.join(__dirname, '..', 'referenceWindow', 'boards', $board.value + '.json');
-                    fs.writeFileSync(boardFile, jsondata);
-                    console.log($board.value);
+                getData: function (result) {
+                    if (result) {
+                        filename = $('#boardname').val();
+                    }
+                    return filename;
+                },
+                callback: function (result) {
+                    var file = path.join(__dirname, '..', 'referenceWindow', 'boards', file + '.json');
+
+                    if (result) {
+                        fs.writeFileSync(file, jsondata);
+                        $autosave.prop({
+                            disabled: false,
+                            checked: true
+                        });
+                    }
                 }
-            });*/
+            });
 
         },
         openboard = function () {
@@ -432,10 +446,12 @@
                             canvas.loadFromJSON(JSON.stringify(data), function () {
                                 canvas.renderAll();
                             });
+
+                            $autosave.prop({
+                                disabled: false,
+                                checked: true
+                            });
                         });
-                        setInterval(function () {
-                            updateBoard(filepath);
-                        }, 30000);
                     }
                 }
             });
@@ -592,6 +608,14 @@
             }
         });
         canvas.on('mouse:dblclick', resetAngle);
+        $autosave.change(function () {
+            var jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
+            if ($(this).is(':checked')) {
+                setInterval(function () {
+                    updateBoard(jsondata);
+                }, 30000);
+            }
+        });
 
     }
 

@@ -52,6 +52,19 @@ button {
     margin: 0 7em;
 }
 
+/*Autosave Switch */
+.switch-div {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-end;
+    justify-content: center;
+    max-width: 90%;
+}
+
+.switch-div span {
+    font-size: 1.2em;
+}
+
 /*Fancyprompt Window*/
 
 .bttnbox {
