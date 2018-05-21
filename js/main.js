@@ -368,7 +368,7 @@
             var fs = require('fs'),
                 path = require('path'),
                 filename,
-                //                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
                 jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
             //                saveprompt = prompt('Give this board a name: '),
             //                boardFile = path.join(dir, saveprompt + '.json');
@@ -394,7 +394,7 @@
                     return filename;
                 },
                 callback: function (result) {
-                    var file = path.join(__dirname, '..', 'referenceWindow', 'boards', file + '.json');
+                    var file = path.join(dir, filename + '.json');
 
                     if (result) {
                         fs.writeFileSync(file, jsondata);
