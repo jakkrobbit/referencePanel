@@ -40,7 +40,7 @@
         },
         canvas = new fabric.Canvas('canvas', {
             width: 300,
-            height: 450,
+            height: 535,
             backgroundColor: '#2b2b2b',
             rotationCursor: 'url("./icons/PSrotatecursor.cur"), crosshair',
             selectionKey: 'ctrlKey'
@@ -121,9 +121,9 @@
                 flexH;
 
             switch (true) {
-                case (divWidth > 450):
-                case (divHeight > 553):
-                case (divHeight < 550):
+                case (divWidth > 535):
+                case (divHeight > 638):
+                case (divHeight < 635):
                     flexW = divWidth - 100;
                     flexH = divHeight - 40;
                     break;
@@ -165,10 +165,10 @@
         readRefs = function () {
             var refs = canvas.getObjects();
             if (refs) {
-                csInterface.updateContextMenuItem('newBoard', true, false);
+                csInterface.updateContextMenuItem('saveBoard', true, false);
                 csInterface.updatePanelMenuItem('Create New Board', true, false);
             } else {
-                csInterface.updateContextMenuItem('newBoard', false, false);
+                csInterface.updateContextMenuItem('saveBoard', false, false);
                 csInterface.updatePanelMenuItem('Create New Board', false, false);
             }
         },
@@ -247,7 +247,7 @@
                             throw err;
                         }
                     });
-                    // Change src so image is still viewable upon reopening board file
+                    // Change src so image is viewable upon reopening
                     img.src = imgPath;
                 }, imgAttrs);
             }
@@ -350,7 +350,7 @@
 
         //TODO: Add save/open/delete board funcs
         // Save/Open/Delete Boards
-        newboard = function () {
+        saveboard = function () {
             var fs = require('fs'),
                 path = require('path'),
                 dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
@@ -363,6 +363,8 @@
             if (saveprompt) {
                 fs.writeFileSync(boardFile, jsondata);
             }
+
+            saveboard.saved = true;
 
             /*$.fancyprompt({
                 title: 'Save New Reference Board',
@@ -389,12 +391,10 @@
                 options = function () {
                     folder.forEach(function (ref) {
                         refs.push(`<option>${ref}</option>`);
-                        //                        $dropdown.append(ref);
                     });
 
                     return refs;
                 };
-
 
             options();
             var mssg = `<label class="topcoat-dropdown-label" for="boards">Board List: </label>
@@ -418,28 +418,24 @@
                         $.getJSON(filepath, (data) => {
                             canvas.loadFromJSON(JSON.stringify(data), function () {
                                 canvas.renderAll();
-                                console.log('getJSON() working: ' + data);
                             });
                         });
                     }
                 }
             });
 
-            /*var opendlg = cepEngine.showOpenDialogEx(false, false, 'Open Board', '', ['json'], 'JSON File'),
-                 files = new Blob(opendlg.data, {
-                     type: 'application/json'
-                 }),
-//                files = e.target.files[0],
-                reader = new FileReader();
-            reader.onload = function () {
-                var contents = reader.result;
-                canvas.loadFromJSON(JSON.stringify(contents), function () {
-                    canvas.renderAll();
-                });
-                console.log('File data: ' + JSON.stringify(contents));
-            };
-
-            reader.readAsText(files);*/
+            openboard.opened = true;
+        },
+        updateBoard = function () {
+            var fs = require('fs'),
+                path = require('path'),
+                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                stream = fs.createWriteStream(dir, {
+                    flags: 'a'
+                }),
+                jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
+            stream.write(jsondata);
+            console.log('File saved, maybe');
         },
 
 
@@ -448,19 +444,19 @@
         //        '<MenuItem Id="undo" Label="Undo" Enabled="true"/>' +
         //        '<MenuItem Id="redo" Label="Redo" Enabled="true"/>' +
         //        '<MenuItem Label="---" />' +
-        '<MenuItem Id="addRef" Label="Add Image" Enabled="true"/>' +
-        '<MenuItem Id="fwd" Label="Bring Forward" Enabled="true"/>' +
-        '<MenuItem Id="back" Label="Send Backward" Enabled="true"/>' +
-        '<MenuItem Id="findimgs" Label="Find Off-Screen Images" Enabled="true"/>' +
-        '<MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>' +
-        '<MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>' +
-        '<MenuItem Label="---" />' +
-        '<MenuItem Id="newBoard" Label="Create New Board" Enabled="false"/>' +
-        '<MenuItem Id="openBoard" Label="Open Board" Enabled="false"/>' +
-        '<MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/>' +
-        '<MenuItem Label="---" />' +
-        '<MenuItem Id="helpBox" Label="Help" Enabled="true"/>' +
-        '</Menu>',
+        `<MenuItem Id="addRef" Label="Add Image" Enabled="true"/>
+        <MenuItem Id="fwd" Label="Bring Forward" Enabled="true"/>
+        <MenuItem Id="back" Label="Send Backward" Enabled="true"/>
+        <MenuItem Id="findimgs" Label="Find Off-Screen Images" Enabled="true"/>
+        <MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>
+        <MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>
+        <MenuItem Label="---" />
+        <MenuItem Id="saveBoard" Label="Create New Board" Enabled="false"/>
+        <MenuItem Id="openBoard" Label="Open Board" Enabled="false"/>
+        <MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/>
+        <MenuItem Label="---" />
+        <MenuItem Id="helpBox" Label="Help" Enabled="true"/>
+        </Menu>`,
         flyoutCallbacks = function (e) {
             switch (e.data.menuId) {
                 case "addRef":
@@ -481,8 +477,8 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                case "newBoard":
-                    newboard();
+                case "saveBoard":
+                    saveboard();
                     break;
                 case "openBoard":
                     openboard();
@@ -515,8 +511,8 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                case "newBoard":
-                    newboard();
+                case "saveBoard":
+                    saveboard();
                     break;
                 case "openBoard":
                     openboard();
@@ -573,7 +569,7 @@
         ///////// BUTTONS /////////
         $("#openref").click(addRef);
         $('#delref').click(deleteImage);
-        $("#newbrd").click(newboard);
+        $("#newbrd").click(saveboard);
         $("#openbrd").click(openboard);
         $('#refresh').click(function () {
             window.location.reload(true);
@@ -593,6 +589,9 @@
             }
         });
         canvas.on('mouse:dblclick', resetAngle);
+
+        // Saved board info
+        setInterval(updateBoard, 30000);
 
     }
 
