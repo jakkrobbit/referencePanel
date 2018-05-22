@@ -8,7 +8,7 @@
     var csInterface = new CSInterface(),
         cepEngine = window.cep.fs,
         $container = $('#content'),
-        $autosave = $('.topcoat-switch__input'),
+        $autosave = $('#autosave'),
 
         ///////// CANVAS /////////
         txtStyles = {
@@ -160,6 +160,20 @@
         resetAngle = function () {
             var obj = canvas.getActiveObject();
             canvas.straightenObject(obj);
+        },
+        flipX = function () {
+            var selected = canvas.getActiveObjects();
+            selected.forEach(function (obj) {
+                obj.set('flipX', true);
+                canvas.renderAll();
+            });
+        },
+        flipY = function () {
+            var selected = canvas.getActiveObjects();
+            selected.forEach(function (obj) {
+                obj.set('flipY', true);
+                canvas.renderAll();
+            });
         },
 
         // Check for images & update menus
@@ -467,6 +481,9 @@
         <MenuItem Id="fwd" Label="Bring Forward" Enabled="true"/>
         <MenuItem Id="back" Label="Send Backward" Enabled="true"/>
         <MenuItem Id="findimgs" Label="Find Off-Screen Images" Enabled="true"/>
+        <MenuItem Id="flipX" Label="Flip Horizontally" Enabled="true"/>
+        <MenuItem Id="flipY" Label="Flip Vertically" Enabled="true"/>
+        <MenuItem Label="---" />
         <MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>
         <MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>
         <MenuItem Label="---" />
@@ -495,6 +512,12 @@
                     break;
                 case "deleteAll":
                     deleteAll();
+                    break;
+                case "flipX":
+                    flipX();
+                    break;
+                case "flipY":
+                    flipY();
                     break;
                 case "saveBoard":
                     saveboard();
@@ -529,6 +552,12 @@
                     break;
                 case "deleteAll":
                     deleteAll();
+                    break;
+                case "flipX":
+                    flipX();
+                    break;
+                case "flipY":
+                    flipY();
                     break;
                 case "saveBoard":
                     saveboard();
@@ -571,7 +600,7 @@
 
     function init() {
         themeManager.init();
-        //        persist(true);
+        persist(true);
 
         ///////// MENUS /////////
         csInterface.setPanelFlyoutMenu(menuXML);

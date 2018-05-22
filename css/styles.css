@@ -33,7 +33,13 @@ body {
     width: auto;
 }
 
+/*DnD Class*/
 
+.highlight {
+    border: 2px #6fb5f1 solid;
+    box-shadow: 0 0 10px 2px #6fb5f1;
+    transition: border 150ms linear, box-shadow 150ms linear;
+}
 
 /*Nav bar*/
 
