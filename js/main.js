@@ -161,19 +161,29 @@
             var obj = canvas.getActiveObject();
             canvas.straightenObject(obj);
         },
+
+        // Flip Images
         flipX = function () {
             var selected = canvas.getActiveObjects();
-            selected.forEach(function (obj) {
-                obj.set('flipX', true);
-                canvas.renderAll();
-            });
+            if (selected) {
+                selected.forEach(function (obj) {
+                    obj.set('flipX', true);
+                    canvas.renderAll();
+                });
+            } else {
+                alert('No images selected');
+            }
         },
         flipY = function () {
             var selected = canvas.getActiveObjects();
-            selected.forEach(function (obj) {
-                obj.set('flipY', true);
-                canvas.renderAll();
-            });
+            if (selected) {
+                selected.forEach(function (obj) {
+                    obj.set('flipY', true);
+                    canvas.renderAll();
+                });
+            } else {
+                alert('No images selected');
+            }
         },
 
         // Check for images & update menus
@@ -281,8 +291,9 @@
             readRefs();
         },
         deleteAll = function () {
+            var objs = canvas.getObjects();
             if (confirm('Delete all images?')) {
-                canvas.clear();
+                canvas.remove(...objs).renderAll();
             }
             readRefs();
         },
@@ -471,8 +482,59 @@
             });
 
         },
+        newboard = function () {
+            var objs = canvas.getObjects(),
+                confirm = confirm('Open a new board (current images will be removed)?');
+            if (objs) {
+                if (confirm) {
+                    canvas.remove(...objs).renderAll();
+                }
+            }
+        },
+        deleteboard = function () {
+            var fs = require('fs'),
+                path = require('path'),
+                dir = path.join(__dirname, '..', 'referenceWindow', 'boards'),
+                //                $dropdown = $('#boardfiles'),
+                folder = fs.readdirSync(dir),
+                refs = [],
+                file,
+                options = function () {
+                    folder.forEach(function (ref) {
+                        refs.push(`<option>${ref}</option>`);
+                    });
+
+                    return refs;
+                };
+
+            options();
+            var mssg = `<label class="topcoat-dropdown-label" for="boards">Board List: </label>
+                <select class="topcoat-dropdown" id="boards">${refs}</select>`;
+
+            $.fancyprompt({
+                title: 'Open Reference Board',
+                message: mssg,
+                okButton: 'Open',
+                noButton: 'Cancel',
+                getData: function (result) {
+                    if (result) {
+                        file = $('select').val();
+                    }
+                    return file;
+                },
+                callback: function (result) {
+                    var filepath = path.join(__dirname, '..', 'referenceWindow', 'boards', file);
+
+                    if (result) {
+                        fs.unlinkSync(filepath);
+                    }
+                }
+            });
+
+        },
 
         ///////// PS INTERACTION /////////
+        //TODO: Create seperate flyout menu variable
         menuXML = '<Menu>' +
         //        '<MenuItem Id="undo" Label="Undo" Enabled="true"/>' +
         //        '<MenuItem Id="redo" Label="Redo" Enabled="true"/>' +
@@ -489,9 +551,21 @@
         <MenuItem Label="---" />
         <MenuItem Id="saveBoard" Label="Create New Board" Enabled="false"/>
         <MenuItem Id="openBoard" Label="Open Board" Enabled="false"/>
-        <MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/>
         <MenuItem Label="---" />
         <MenuItem Id="helpBox" Label="Help" Enabled="true"/>
+        </Menu>`,
+        flyMenu = `<Menu>
+        <MenuItem Id="addRef" Label="Add Image" Enabled="true"/>
+        <MenuItem Id="fwd" Label="Bring Forward" Enabled="true"/>
+        <MenuItem Id="back" Label="Send Backward" Enabled="true"/>
+        <MenuItem Id="findimgs" Label="Find Off-Screen Images" Enabled="true"/>
+        <MenuItem Label="---" />
+        <MenuItem Id="deleteRef" Label="Delete Selected" Enabled="true"/>
+        <MenuItem Id="deleteAll" Label="Delete All" Enabled="true"/>
+        <MenuItem Label="---" />
+        <MenuItem Id="saveBoard" Label="Create New Board" Enabled="false"/>
+        <MenuItem Id="openBoard" Label="Open Board" Enabled="false"/>
+        <MenuItem Id="deleteBoard" Label="Delete Board" Enabled="false"/>
         </Menu>`,
         flyoutCallbacks = function (e) {
             switch (e.data.menuId) {
@@ -513,20 +587,15 @@
                 case "deleteAll":
                     deleteAll();
                     break;
-                case "flipX":
-                    flipX();
-                    break;
-                case "flipY":
-                    flipY();
-                    break;
                 case "saveBoard":
                     saveboard();
                     break;
                 case "openBoard":
                     openboard();
                     break;
-                    /*case "deleteBoard":
-                        break;*/
+                case "deleteBoard":
+                    deleteboard();
+                    break;
                 case "helpbox":
                     csInterface.evalScript('fyi()');
                     break;
@@ -547,17 +616,17 @@
                 case "findimgs":
                     bringtoView();
                     break;
-                case "deleteRef":
-                    deleteImage();
-                    break;
-                case "deleteAll":
-                    deleteAll();
-                    break;
                 case "flipX":
                     flipX();
                     break;
                 case "flipY":
                     flipY();
+                    break;
+                case "deleteRef":
+                    deleteImage();
+                    break;
+                case "deleteAll":
+                    deleteAll();
                     break;
                 case "saveBoard":
                     saveboard();
@@ -565,8 +634,6 @@
                 case "openBoard":
                     openboard();
                     break;
-                    /*case "deleteBoard":
-                        break;*/
                 case "helpbox":
                     csInterface.evalScript('fyi()');
                     break;
@@ -600,10 +667,10 @@
 
     function init() {
         themeManager.init();
-        persist(true);
+        //        persist(true);
 
         ///////// MENUS /////////
-        csInterface.setPanelFlyoutMenu(menuXML);
+        csInterface.setPanelFlyoutMenu(flyMenu);
         csInterface.addEventListener("com.adobe.csxs.events.flyoutMenuClicked", flyoutCallbacks);
         csInterface.setContextMenu(menuXML, contextCallbacks);
 
@@ -619,6 +686,7 @@
         $('#delref').click(deleteImage);
         $("#newbrd").click(saveboard);
         $("#openbrd").click(openboard);
+        $("#blankbrd").click(newboard);
         $('#refresh').click(function () {
             window.location.reload(true);
         });
@@ -637,14 +705,16 @@
             }
         });
         canvas.on('mouse:dblclick', resetAngle);
-        $autosave.change(function () {
+
+        // Turn on autosave if Switched on
+        if ($autosave.is(':checked')) {
             var jsondata = JSON.stringify(canvas.toJSON(['originX', 'originY', 'borderColor', 'cornerColor', 'padding', 'cornerSize', 'cornerStyle', 'transparentCorners', 'lockUniScaling']));
-            if ($(this).is(':checked')) {
-                setInterval(function () {
-                    updateBoard(jsondata);
-                }, 30000);
-            }
-        });
+            setInterval(function () {
+                updateBoard(jsondata);
+            }, 30000);
+        } else {
+            clearInterval(updateBoard);
+        }
 
     }
 
